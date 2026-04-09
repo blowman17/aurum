@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shop — AURUM Haute Couture</title>
+<meta name="description" content="Explore the AURUM collection. Haute couture and prêt-à-porter from Accra to the world." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="shop.html?season=fw2026">New Season</a></li>
+    <li><a href="index.html#testimonials">Stories</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+    <a href="checkout.html" class="nav-cta">Checkout</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <h1 class="page-title">The <em>Collection</em></h1>
+  <p class="page-subtitle">Handcrafted excellence from our Accra atelier</p>
+</div>
+
+<div class="shop-container">
+  <aside class="shop-filters">
+    <div class="filter-group">
+      <h4>Collection</h4>
+      <button class="filter-btn active" data-collection="all">All Pieces</button>
+      <button class="filter-btn" data-collection="Nocturne">Nocturne</button>
+      <button class="filter-btn" data-collection="Soleil">Soleil</button>
+      <button class="filter-btn" data-collection="Azure">Azure</button>
+      <button class="filter-btn" data-collection="Velours">Velours</button>
+      <button class="filter-btn" data-collection="Lumière">Lumière</button>
+      <button class="filter-btn" data-collection="Cristal">Cristal</button>
+      <button class="filter-btn" data-collection="Ambra">Ambra</button>
+      <button class="filter-btn" data-collection="Ombré">Ombré</button>
+      <button class="filter-btn" data-collection="Noir">Noir</button>
+    </div>
+  </aside>
+  <div class="shop-grid" id="shop-grid">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><div class="foot-brand">AURUM</div><p class="foot-tagline">Maison Aurum. Est. 1987.<br>Haute Couture for the extraordinary.</p></div>
+    <div class="foot-col"><h4>Collections</h4><ul><li><a href="shop.html">All Pieces</a></li><li><a href="product.html?id=nocturne-evening">Nocturne</a></li><li><a href="product.html?id=soleil-day">Soleil</a></li></ul></div>
+    <div class="foot-col"><h4>Atelier</h4><ul><li><a href="about.html">Our Story</a></li><li><a href="about.html">Appointments</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="mailto:hello@maison-aurum.com">hello@maison-aurum.com</a></li><li><a href="tel:+233300000000">+233 30 000 0000</a></li></ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-copy">© 2026 Maison Aurum. All rights reserved.</p>
+    <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a><a href="#" class="social-link">TW</a><a href="#" class="social-link">YT</a></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/shop.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Product — AURUM</title>
+<meta name="description" content="AURUM haute couture piece — handcrafted luxury from Accra." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="shop.html?season=fw2026">New Season</a></li>
+    <li><a href="index.html#testimonials">Stories</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+    <a href="checkout.html" class="nav-cta">Checkout</a>
+  </div>
+</nav>
+
+<div class="product-detail" id="product-detail">
+  <div class="spinner"></div>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><div class="foot-brand">AURUM</div><p class="foot-tagline">Maison Aurum. Est. 1987.<br>Haute Couture for the extraordinary.</p></div>
+    <div class="foot-col"><h4>Collections</h4><ul><li><a href="shop.html">All Pieces</a></li></ul></div>
+    <div class="foot-col"><h4>Atelier</h4><ul><li><a href="about.html">Our Story</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="mailto:hello@maison-aurum.com">hello@maison-aurum.com</a></li></ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-copy">© 2026 Maison Aurum. All rights reserved.</p>
+    <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a><a href="#" class="social-link">TW</a><a href="#" class="social-link">YT</a></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const container = document.getElementById('product-detail');
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) { container.innerHTML = '<div class="cart-empty"><p>Product not found</p><a href="shop.html" class="btn-primary" style="display:inline-block;margin-top:1rem;">Browse Shop</a></div>'; return; }
+
+  try {
+    const res = await fetch('/api/products/' + id);
+    if (!res.ok) throw new Error();
+    const p = await res.json();
+    document.title = p.name + ' — AURUM';
+
+    let selectedSize = p.sizes[0];
+    let qty = 1;
+
+    container.innerHTML = `
+      ${p.image
+        ? `<div class="product-detail-img" style="background:${p.gradient};"><img src="${p.image}" alt="${p.name}" /></div>`
+        : `<div class="product-detail-img img-placeholder" style="background:${p.gradient};">${p.name.split(' ')[0].toUpperCase()}</div>`
+      }
+      <div class="product-detail-info">
+        <p class="product-detail-collection">${p.collection} · ${p.season}</p>
+        <h1 class="product-detail-name">${p.name}</h1>
+        <p class="product-detail-price">${formatPrice(p.price)}</p>
+        <p class="product-detail-desc">${p.description}</p>
+        <div class="size-selector">
+          <h4>Size</h4>
+          <div class="size-options">
+            ${p.sizes.map((s,i) => `<button class="size-btn ${i===0?'selected':''}" data-size="${s}">${s}</button>`).join('')}
+          </div>
+        </div>
+        <div class="product-actions">
+          <div class="qty-control">
+            <button class="qty-btn" id="qty-minus">−</button>
+            <div class="qty-display" id="qty-val">1</div>
+            <button class="qty-btn" id="qty-plus">+</button>
+          </div>
+          <button class="btn-add-cart" id="add-to-cart">Add to Cart</button>
+        </div>
+      </div>
+    `;
+
+    // Size selection
+    container.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSize = btn.dataset.size;
+      });
+    });
+
+    // Qty controls
+    document.getElementById('qty-minus').addEventListener('click', () => { if (qty > 1) { qty--; document.getElementById('qty-val').textContent = qty; }});
+    document.getElementById('qty-plus').addEventListener('click', () => { qty++; document.getElementById('qty-val').textContent = qty; });
+
+    // Add to cart
+    document.getElementById('add-to-cart').addEventListener('click', () => {
+      CartManager.addItem(p, qty, selectedSize);
+    });
+  } catch {
+    container.innerHTML = '<div class="cart-empty"><p>Product not found</p><a href="shop.html" class="btn-primary" style="display:inline-block;margin-top:1rem;">Browse Shop</a></div>';
+  }
+});
+</script>
+</body>
+</html>

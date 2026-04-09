@@ -1,0 +1,110 @@
+[
+  {
+    "id": "nocturne-evening",
+    "name": "Nocturne Evening",
+    "collection": "Nocturne",
+    "season": "FW 2026",
+    "price": 8400,
+    "description": "An exquisite evening gown crafted from hand-dyed Ghanaian silk, featuring delicate kente-inspired embroidery along the bodice. The deep midnight hues shift subtly under light, creating an otherworldly presence that commands every room.",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "gradient": "linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%)",
+    "image": "images/nocturne-evening.png",
+    "tag": "Featured"
+  },
+  {
+    "id": "soleil-day",
+    "name": "Soleil Day",
+    "collection": "Soleil",
+    "season": "SS 2026",
+    "price": 5200,
+    "description": "A luminous day ensemble inspired by the golden warmth of the Accra sun. Woven from organic cotton and adorned with hand-stamped adinkra motifs, this piece bridges heritage and contemporary elegance.",
+    "sizes": ["XS", "S", "M", "L"],
+    "gradient": "linear-gradient(140deg,#1f1a14 0%,#2e2516 100%)",
+    "image": "images/soleil-day.png",
+    "tag": "New Season"
+  },
+  {
+    "id": "azure-atelier",
+    "name": "Azure Atelier",
+    "collection": "Azure",
+    "season": "FW 2026",
+    "price": 6800,
+    "description": "A sculptural masterpiece in oceanic blues, tailored with precision from Italian wool and Ghanaian indigo-dyed accents. Each stitch is placed by hand over 120 hours of meticulous craftsmanship.",
+    "sizes": ["S", "M", "L", "XL"],
+    "gradient": "linear-gradient(140deg,#101520 0%,#1a2535 100%)",
+    "image": "images/azure-atelier.png",
+    "tag": "Limited"
+  },
+  {
+    "id": "velours-rouge",
+    "name": "Velours Rouge",
+    "collection": "Velours",
+    "season": "FW 2026",
+    "price": 9100,
+    "description": "Rich crimson velvet meets West African brocade in this show-stopping piece. The structured silhouette is softened by cascading drapes, creating a dialogue between power and grace.",
+    "sizes": ["XS", "S", "M", "L"],
+    "gradient": "linear-gradient(140deg,#1e1019 0%,#2c1527 100%)",
+    "image": "images/velours-rouge.png",
+    "tag": "Exclusive"
+  },
+  {
+    "id": "lumiere-coat",
+    "name": "Lumière Coat",
+    "collection": "Lumière",
+    "season": "FW 2026",
+    "price": 12400,
+    "description": "An architectural coat that transforms the wearer into a beacon of understated luxury. Constructed from triple-weight cashmere with gold-thread detailing inspired by Ashanti royal textile traditions.",
+    "sizes": ["S", "M", "L", "XL"],
+    "gradient": "linear-gradient(160deg,#1f1418,#2e1d2a)",
+    "image": "images/lumiere-coat.png",
+    "tag": "New Season"
+  },
+  {
+    "id": "cristal-gown",
+    "name": "Cristal Gown",
+    "collection": "Cristal",
+    "season": "FW 2026",
+    "price": 18900,
+    "description": "Our pièce de résistance — a floor-length gown encrusted with hand-set crystals that cascade like frozen rain. Over 400 hours of artisan work make each gown a singular treasure.",
+    "sizes": ["XS", "S", "M", "L"],
+    "gradient": "linear-gradient(160deg,#101820,#1a2838)",
+    "image": "images/cristal-gown.png",
+    "tag": "Haute Couture"
+  },
+  {
+    "id": "ambra-silk-set",
+    "name": "Ambra Silk Set",
+    "collection": "Ambra",
+    "season": "FW 2026",
+    "price": 7200,
+    "description": "A two-piece ensemble in amber-toned raw silk, hand-woven in our Accra atelier. The relaxed yet refined silhouette speaks to the modern connoisseur who values substance over spectacle.",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "gradient": "linear-gradient(160deg,#1a1410,#2a2015)",
+    "image": "images/ambra-silk-set.png",
+    "tag": "New Season"
+  },
+  {
+    "id": "ombre-draped",
+    "name": "Ombré Draped",
+    "collection": "Ombré",
+    "season": "FW 2026",
+    "price": 9600,
+    "description": "Flowing ombré chiffon layers create a mesmerizing gradient effect — from deep plum to soft lavender. Each panel is individually dyed using traditional Ghanaian ombré techniques.",
+    "sizes": ["S", "M", "L"],
+    "gradient": "linear-gradient(160deg,#100f18,#1c1a28)",
+    "image": "images/ombre-draped.png",
+    "tag": "Limited"
+  },
+  {
+    "id": "noir-tuxedo",
+    "name": "Noir Tuxedo",
+    "collection": "Noir",
+    "season": "FW 2026",
+    "price": 14300,
+    "description": "The definitive reimagination of the classic tuxedo — cut from jet-black Italian wool with satin lapels bearing subtle adinkra symbols. Effortless authority, impeccably tailored.",
+    "sizes": ["S", "M", "L", "XL"],
+    "gradient": "linear-gradient(160deg,#181014,#281820)",
+    "image": "images/noir-tuxedo.png",
+    "tag": "Exclusive"
+  }
+]

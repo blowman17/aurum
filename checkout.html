@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout — AURUM</title>
+<meta name="description" content="Complete your AURUM purchase." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+<script src="https://js.paystack.co/v2/inline.js"></script>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="shop.html?season=fw2026">New Season</a></li>
+    <li><a href="index.html#testimonials">Stories</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+    <a href="checkout.html" class="nav-cta">Checkout</a>
+  </div>
+</nav>
+
+<div class="page-hero" style="padding-bottom:3rem;">
+  <div class="orb orb-1"></div>
+  <h1 class="page-title"><em>Checkout</em></h1>
+  <p class="page-subtitle">Secure payment powered by Paystack</p>
+</div>
+
+<div class="checkout-container">
+  <div class="checkout-form">
+    <h3>Shipping Information</h3>
+    <form id="checkout-form">
+      <div class="form-row">
+        <div class="form-group"><label for="firstName">First Name *</label><input type="text" id="firstName" required /></div>
+        <div class="form-group"><label for="lastName">Last Name *</label><input type="text" id="lastName" required /></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label for="email">Email Address *</label><input type="email" id="email" required /></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" /></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label for="address">Street Address *</label><input type="text" id="address" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="city">City *</label><input type="text" id="city" required /></div>
+        <div class="form-group">
+          <label for="region">Region</label>
+          <select id="region">
+            <option value="">Select region</option>
+            <option>Greater Accra</option>
+            <option>Ashanti</option>
+            <option>Central</option>
+            <option>Eastern</option>
+            <option>Northern</option>
+            <option>Western</option>
+            <option>Volta</option>
+            <option>Other / International</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-pay" id="pay-btn">Pay Now</button>
+    </form>
+  </div>
+  <div class="order-summary">
+    <h3>Order Summary</h3>
+    <div id="order-items"></div>
+    <div class="cart-summary-row" style="margin-top:1rem;"><span>Subtotal</span><span id="order-subtotal">GH₵ 0</span></div>
+    <div class="cart-summary-row"><span>Shipping</span><span>Free</span></div>
+    <div class="cart-summary-row total"><span>Total</span><span id="order-total">GH₵ 0</span></div>
+  </div>
+</div>
+
+<!-- Confirmation (hidden by default) -->
+<div class="confirmation" id="confirmation" style="display:none;">
+  <div class="confirmation-icon">✓</div>
+  <h2>Thank You</h2>
+  <p>Your order has been placed successfully. You will receive a confirmation email shortly.</p>
+  <p class="order-ref" id="order-ref"></p>
+  <a href="shop.html" class="btn-primary" style="display:inline-block;margin-top:2rem;">Continue Shopping</a>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><div class="foot-brand">AURUM</div><p class="foot-tagline">Maison Aurum. Est. 1987.</p></div>
+    <div class="foot-col"><h4>Collections</h4><ul><li><a href="shop.html">All Pieces</a></li></ul></div>
+    <div class="foot-col"><h4>Atelier</h4><ul><li><a href="about.html">Our Story</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="mailto:hello@maison-aurum.com">hello@maison-aurum.com</a></li></ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-copy">© 2026 Maison Aurum. All rights reserved.</p>
+    <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>
