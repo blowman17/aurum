@@ -10,22 +10,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/pages.css" />
+<style>
+  /* Override custom cursor on admin page — use normal pointer everywhere */
+  body, body * { cursor: auto !important; }
+  #cursor, #cursor-ring { display: none !important; }
+  body::before { display: none !important; }
+  a, button { cursor: pointer !important; }
+  input, textarea, select { cursor: text !important; }
+</style>
 </head>
 <body>
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
 
 <nav id="nav">
   <a href="index.html" class="nav-logo">AURUM</a>
-  <div class="nav-hamburger"><span></span><span></span><span></span></div>
   <ul class="nav-links">
-    <li><a href="shop.html">Shop</a></li>
-    <li><a href="about.html">Atelier</a></li>
-    <li><a href="admin.html" style="color:var(--accent);">Admin</a></li>
+    <li><a href="admin.html" style="color:var(--gold);">Admin</a></li>
+    <li><a href="shop.html" class="nav-cta" id="preview-link">Preview Shop ↗</a></li>
   </ul>
-  <div style="display:flex;gap:1.8rem;align-items:center;">
-    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
-  </div>
 </nav>
 
 <!-- Hero -->
@@ -39,7 +40,7 @@
 <!-- Toolbar -->
 <div class="admin-toolbar">
   <span class="admin-count" id="product-count">— pieces</span>
-  <button class="btn-primary" id="btn-add-product">＋ Add Product</button>
+  <button class="admin-btn-primary" id="btn-add-product">＋ Add Product</button>
 </div>
 
 <!-- Table -->
@@ -115,9 +116,27 @@
           <input type="hidden" id="field-image-path" />
         </div>
       </div>
+
+      <!-- Live Preview -->
+      <div class="admin-preview-section">
+        <h4 class="admin-preview-label">Live Preview</h4>
+        <div class="admin-preview-card" id="live-preview">
+          <div class="admin-preview-img" id="preview-img" style="background:linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%);">
+          </div>
+          <div class="admin-preview-body">
+            <p class="admin-preview-collection" id="preview-collection">Collection</p>
+            <p class="admin-preview-name" id="preview-name">Product Name</p>
+            <div class="admin-preview-row">
+              <span class="admin-preview-price" id="preview-price">GH₵ 0.00</span>
+              <span class="admin-preview-tag" id="preview-tag"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="admin-form-footer">
-        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-close').click()">Cancel</button>
-        <button type="submit" class="btn-primary">Save Product</button>
+        <button type="button" class="admin-btn-secondary" id="form-cancel-btn">Cancel</button>
+        <button type="submit" class="admin-btn-primary" id="save-product-btn">Save Product</button>
       </div>
     </form>
   </div>
@@ -129,17 +148,15 @@
     <h2>Delete Product</h2>
     <p>Are you sure you want to delete <strong id="delete-product-name"></strong>? This action cannot be undone.</p>
     <div class="admin-form-footer">
-      <button class="btn-secondary" id="delete-cancel">Cancel</button>
-      <button class="btn-danger" id="delete-confirm">Delete</button>
+      <button class="admin-btn-secondary" id="delete-cancel">Cancel</button>
+      <button class="admin-btn-danger" id="delete-confirm">Delete</button>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
-<div class="toast" id="toast"></div>
+<div class="admin-toast" id="toast"></div>
 
-<script src="js/main.js"></script>
-<script src="js/cart.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

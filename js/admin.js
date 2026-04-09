@@ -18,13 +18,41 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Helpers ─────────────────────────────── */
   function showToast(message, type = 'success') {
     toast.textContent = message;
-    toast.className = 'toast show ' + type;
-    setTimeout(() => toast.className = 'toast', 3000);
+    toast.className = 'admin-toast show ' + type;
+    setTimeout(() => toast.className = 'admin-toast', 3000);
   }
 
   function formatPrice(cents) {
     return 'GH₵ ' + Number(cents).toLocaleString('en-GH', { minimumFractionDigits: 2 });
   }
+
+  /* ── Live Preview ────────────────────────── */
+  function updatePreview() {
+    const name = document.getElementById('field-name').value.trim() || 'Product Name';
+    const collection = document.getElementById('field-collection').value.trim() || 'Collection';
+    const price = Number(document.getElementById('field-price').value) || 0;
+    const tag = document.getElementById('field-tag').value.trim();
+    const gradient = document.getElementById('field-gradient').value.trim();
+    const imagePath = document.getElementById('field-image-path').value.trim();
+
+    document.getElementById('preview-name').textContent = name;
+    document.getElementById('preview-collection').textContent = collection;
+    document.getElementById('preview-price').textContent = formatPrice(price);
+
+    const tagEl = document.getElementById('preview-tag');
+    tagEl.textContent = tag;
+    tagEl.style.display = tag ? 'inline-block' : 'none';
+
+    const imgEl = document.getElementById('preview-img');
+    if (gradient) imgEl.style.background = gradient;
+    imgEl.innerHTML = imagePath ? `<img src="${imagePath}" alt="Preview" />` : '';
+  }
+
+  // Attach live preview listeners to form fields
+  ['field-name', 'field-collection', 'field-price', 'field-tag', 'field-gradient'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updatePreview);
+  });
 
   /* ── Load Products ───────────────────────── */
   async function loadProducts() {
@@ -91,6 +119,14 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
     imagePreview.innerHTML = '';
     editingId = null;
+    // Reset preview
+    document.getElementById('preview-name').textContent = 'Product Name';
+    document.getElementById('preview-collection').textContent = 'Collection';
+    document.getElementById('preview-price').textContent = 'GH₵ 0.00';
+    document.getElementById('preview-tag').textContent = '';
+    document.getElementById('preview-tag').style.display = 'none';
+    document.getElementById('preview-img').style.background = 'linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%)';
+    document.getElementById('preview-img').innerHTML = '';
   }
 
   document.getElementById('btn-add-product').addEventListener('click', () => {
@@ -100,10 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     imagePreview.innerHTML = '';
     document.getElementById('field-sizes').value = 'XS, S, M, L, XL';
     document.getElementById('field-gradient').value = 'linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%)';
+    updatePreview();
     openModal();
   });
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('form-cancel-btn').addEventListener('click', closeModal);
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
   function openEditModal(id) {
@@ -122,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('field-tag').value = p.tag || '';
     document.getElementById('field-image-path').value = p.image || '';
     imagePreview.innerHTML = p.image ? `<img src="${p.image}" alt="Preview" />` : '';
+    updatePreview();
     openModal();
   }
 
@@ -139,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('field-image-path').value = json.path;
         imagePreview.innerHTML = `<img src="${json.path}" alt="Preview" />`;
         showToast('Image uploaded');
+        updatePreview();
       } else {
         throw new Error(json.error);
       }
@@ -151,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Form Submit ─────────────────────────── */
   form.addEventListener('submit', async e => {
     e.preventDefault();
+
     const body = {
       id: document.getElementById('field-id').value.trim() || undefined,
       name: document.getElementById('field-name').value.trim(),
