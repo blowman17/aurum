@@ -1,7 +1,7 @@
 /* ── AURUM — Shop Page JS ──────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('shop-grid');
-  const filterBtns = document.querySelectorAll('.filter-btn');
+  const filterContainer = document.getElementById('filter-buttons');
   let allProducts = [];
 
   async function loadProducts() {
@@ -11,7 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {
       allProducts = [];
     }
+    buildFilters();
     renderProducts(allProducts);
+  }
+
+  function buildFilters() {
+    if (!filterContainer) return;
+    // Get unique collections from the fetched products
+    const collections = [...new Set(allProducts.map(p => p.collection).filter(Boolean))];
+    // Keep the existing "All Pieces" button, add dynamic ones
+    filterContainer.innerHTML = `
+      <button class="filter-btn active" data-collection="all">All Pieces</button>
+      ${collections.map(c => `<button class="filter-btn" data-collection="${c}">${c}</button>`).join('')}
+    `;
+    // Attach click handlers to all filter buttons
+    filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const col = btn.dataset.collection;
+        if (col === 'all') renderProducts(allProducts);
+        else renderProducts(allProducts.filter(p => p.collection.toLowerCase() === col.toLowerCase()));
+      });
+    });
   }
 
   function renderProducts(products) {
@@ -43,16 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const col = btn.dataset.collection;
-      if (col === 'all') renderProducts(allProducts);
-      else renderProducts(allProducts.filter(p => p.collection.toLowerCase() === col.toLowerCase()));
-    });
-  });
 
   loadProducts();
 });

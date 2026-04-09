@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — AURUM</title>
+<meta name="description" content="AURUM product management dashboard." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="admin.html" style="color:var(--accent);">Admin</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="page-hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <h1 class="page-title">Product <em>Manager</em></h1>
+  <p class="page-subtitle">Add, edit, and manage your collection</p>
+</div>
+
+<!-- Toolbar -->
+<div class="admin-toolbar">
+  <span class="admin-count" id="product-count">— pieces</span>
+  <button class="btn-primary" id="btn-add-product">＋ Add Product</button>
+</div>
+
+<!-- Table -->
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Collection</th>
+        <th>Season</th>
+        <th>Price</th>
+        <th>Tag</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="products-tbody">
+      <tr><td colspan="6" class="admin-empty"><div class="spinner"></div></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add / Edit Modal -->
+<div class="admin-modal" id="product-modal">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h2 id="modal-title">Add New Piece</h2>
+      <button class="admin-modal-close" id="modal-close">✕</button>
+    </div>
+    <form id="product-form" class="admin-form">
+      <div class="admin-form-grid">
+        <div class="admin-field">
+          <label for="field-id">ID / Slug</label>
+          <input type="text" id="field-id" placeholder="auto-generated from name" />
+        </div>
+        <div class="admin-field">
+          <label for="field-name">Name *</label>
+          <input type="text" id="field-name" required />
+        </div>
+        <div class="admin-field">
+          <label for="field-collection">Collection</label>
+          <input type="text" id="field-collection" placeholder="e.g. Nocturne" />
+        </div>
+        <div class="admin-field">
+          <label for="field-season">Season</label>
+          <input type="text" id="field-season" placeholder="e.g. FW 2026" />
+        </div>
+        <div class="admin-field">
+          <label for="field-price">Price (GH₵) *</label>
+          <input type="number" id="field-price" min="0" step="1" required />
+        </div>
+        <div class="admin-field">
+          <label for="field-tag">Tag</label>
+          <input type="text" id="field-tag" placeholder="e.g. Featured, Limited" />
+        </div>
+        <div class="admin-field full-width">
+          <label for="field-description">Description</label>
+          <textarea id="field-description" rows="3"></textarea>
+        </div>
+        <div class="admin-field">
+          <label for="field-sizes">Sizes (comma-separated)</label>
+          <input type="text" id="field-sizes" value="XS, S, M, L, XL" />
+        </div>
+        <div class="admin-field">
+          <label for="field-gradient">Card Gradient</label>
+          <input type="text" id="field-gradient" value="linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%)" />
+        </div>
+        <div class="admin-field full-width">
+          <label>Product Image</label>
+          <div class="admin-upload-zone">
+            <input type="file" id="image-file" accept="image/*" />
+            <div id="image-preview" class="admin-image-preview"></div>
+          </div>
+          <input type="hidden" id="field-image-path" />
+        </div>
+      </div>
+      <div class="admin-form-footer">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-close').click()">Cancel</button>
+        <button type="submit" class="btn-primary">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation -->
+<div class="admin-modal" id="delete-modal">
+  <div class="admin-modal-content admin-modal-sm">
+    <h2>Delete Product</h2>
+    <p>Are you sure you want to delete <strong id="delete-product-name"></strong>? This action cannot be undone.</p>
+    <div class="admin-form-footer">
+      <button class="btn-secondary" id="delete-cancel">Cancel</button>
+      <button class="btn-danger" id="delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

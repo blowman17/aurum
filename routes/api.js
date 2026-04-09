@@ -1,9 +1,42 @@
 /* ── AURUM — Product & Order API Routes (Supabase) ── */
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const supabase = require('../lib/supabase');
 
-// GET /api/products
+/* ── Image Upload Config ─────────────────── */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'images')),
+  filename: (req, file, cb) => {
+    const slug = file.originalname
+      .replace(/\.[^.]+$/, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    const ext = path.extname(file.originalname);
+    cb(null, slug + '-' + Date.now() + ext);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|webp|svg/;
+    const ok = allowed.test(path.extname(file.originalname).toLowerCase())
+             && allowed.test(file.mimetype.split('/')[1]);
+    cb(ok ? null : new Error('Only image files are allowed'), ok);
+  }
+});
+
+/* ── Upload Endpoint ─────────────────────── */
+router.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image file provided' });
+  res.json({ path: 'images/' + req.file.filename });
+});
+
+/* ── GET /api/products ───────────────────── */
 router.get('/products', async (req, res) => {
   try {
     let query = supabase.from('products').select('*');
@@ -20,7 +53,7 @@ router.get('/products', async (req, res) => {
   }
 });
 
-// GET /api/products/:id
+/* ── GET /api/products/:id ───────────────── */
 router.get('/products/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -38,7 +71,84 @@ router.get('/products/:id', async (req, res) => {
   }
 });
 
-// POST /api/orders
+/* ── POST /api/products ──────────────────── */
+router.post('/products', async (req, res) => {
+  try {
+    const { id, name, collection, season, price, description, sizes, gradient, image, tag } = req.body;
+    if (!name || price == null) {
+      return res.status(400).json({ error: 'Name and price are required' });
+    }
+
+    const product = {
+      id: id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      name,
+      collection: collection || '',
+      season: season || '',
+      price: Number(price),
+      description: description || '',
+      sizes: sizes || ['S', 'M', 'L'],
+      gradient: gradient || 'linear-gradient(160deg,#1c1825 0%,#2a1f3a 50%,#1a1520 100%)',
+      image: image || '',
+      tag: tag || ''
+    };
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert(product)
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    console.error('Product create error:', err.message);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+/* ── PUT /api/products/:id ───────────────── */
+router.put('/products/:id', async (req, res) => {
+  try {
+    const updates = {};
+    const fields = ['name', 'collection', 'season', 'price', 'description', 'sizes', 'gradient', 'image', 'tag'];
+    fields.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+    if (updates.price !== undefined) updates.price = Number(updates.price);
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(updates)
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Product not found' });
+    res.json(data);
+  } catch (err) {
+    if (err.code === 'PGRST116') return res.status(404).json({ error: 'Product not found' });
+    console.error('Product update error:', err.message);
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+/* ── DELETE /api/products/:id ────────────── */
+router.delete('/products/:id', async (req, res) => {
+  try {
+    const { error, count } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', req.params.id);
+    if (error) throw error;
+    res.status(204).end();
+  } catch (err) {
+    console.error('Product delete error:', err.message);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+/* ── POST /api/orders ────────────────────── */
 router.post('/orders', async (req, res) => {
   try {
     const order = {
@@ -56,7 +166,6 @@ router.post('/orders', async (req, res) => {
       .single();
     if (error) throw error;
 
-    // Return in the same shape the frontend expects
     res.status(201).json({
       id: data.id,
       items: data.items,
@@ -72,7 +181,7 @@ router.post('/orders', async (req, res) => {
   }
 });
 
-// GET /api/orders/:id
+/* ── GET /api/orders/:id ─────────────────── */
 router.get('/orders/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
