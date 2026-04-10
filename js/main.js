@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               const dropdown = document.createElement('div');
               dropdown.className = 'auth-dropdown';
               dropdown.innerHTML = `
-                <a href="#">Account Settings</a>
+                <a href="settings.html">Account Settings</a>
                 <a href="track.html">Track Orders</a>
                 <a href="#" id="auth-logout-btn">Log Out</a>
               `;
