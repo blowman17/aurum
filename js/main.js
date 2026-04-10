@@ -61,9 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Update links site-wide where we have nav-cta for auth
   const ctas = document.querySelectorAll('.nav-cta');
   
-  if (typeof supabase !== 'undefined') {
+  if (typeof window.supabaseClient !== 'undefined') {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
       ctas.forEach(cta => {
         // Find if any CTA points to auth
         if (cta.id === 'auth-nav-link' || cta.href.includes('auth.html')) {
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             cta.addEventListener('click', async (e) => {
               e.preventDefault();
               if(confirm('Are you sure you want to sign out?')) {
-                await supabase.auth.signOut();
+                await window.supabaseClient.auth.signOut();
                 window.location.reload();
               }
             });

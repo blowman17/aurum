@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const continueBtn = document.getElementById('continue-btn');
 
   // Check if already logged in
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
   if (session) {
     showSuccess('You are already logged in.', true);
   }
@@ -96,18 +96,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       const password = document.getElementById('password').value;
 
       try {
-        if (typeof supabase === 'undefined') {
+        if (typeof window.supabaseClient === 'undefined') {
           throw new Error('Authentication service is unavailable. Please hard-refresh your browser.');
         }
 
         if (authMode === 'login') {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
           
           showSuccess('You have successfully signed in. Redirecting...', true);
         } else {
           const fullName = document.getElementById('fullName').value;
-          const { data, error } = await supabase.auth.signUp({ 
+          const { data, error } = await window.supabaseClient.auth.signUp({ 
             email, 
             password,
             options: { data: { full_name: fullName } }
@@ -140,14 +140,14 @@ window.updateAuthNav = async function() {
   if (!authNav) return;
 
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (session) {
       authNav.textContent = 'Account';
       authNav.addEventListener('click', async (e) => {
         e.preventDefault();
         const doLogout = confirm('Are you sure you want to sign out?');
         if (doLogout) {
-          await supabase.auth.signOut();
+          await window.supabaseClient.auth.signOut();
           window.location.reload();
         }
       });

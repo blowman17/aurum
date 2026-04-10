@@ -443,8 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
 
   // Setup Supabase Real-time updates for orders
-  if (typeof supabase !== 'undefined') {
-    supabase.channel('orders-realtime')
+  if (typeof window.supabaseClient !== 'undefined') {
+    window.supabaseClient.channel('orders-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
         if (payload.eventType === 'INSERT') {
           orders.unshift(payload.new);

@@ -2,11 +2,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // Auth Guard
   try {
-    if (typeof supabase === 'undefined') {
+    if (typeof window.supabaseClient === 'undefined') {
       window.location.href = 'auth.html?redirect=checkout.html';
       return;
     }
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session }, error } = await window.supabaseClient.auth.getSession();
     if (error || !session) {
       window.location.href = 'auth.html?redirect=checkout.html';
       return;
