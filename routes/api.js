@@ -242,8 +242,6 @@ router.patch('/orders/:id/status', async (req, res) => {
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Order not found' });
 
-    // Notify admin about status change (this also triggers customer notification via edge function)
-    notifyAdmin({ ...data, _statusUpdate: true }).catch(() => {});
 
     res.json(data);
   } catch (err) {
