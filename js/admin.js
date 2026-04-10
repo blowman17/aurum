@@ -262,9 +262,209 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       if (deleteModal.classList.contains('active')) closeDeleteModal();
       else if (modal.classList.contains('active')) closeModal();
+      else if (orderModal.classList.contains('active')) closeOrderModal();
     }
+  });
+
+  /* ═══════════════════════════════════════════
+     ORDERS MANAGEMENT
+     ═══════════════════════════════════════════ */
+  const orderModal = document.getElementById('order-modal');
+  const ordersTbody = document.getElementById('orders-tbody');
+  const orderFilter = document.getElementById('order-filter');
+  let orders = [];
+  let viewingOrder = null;
+
+  const STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered'];
+  const STATUS_LABELS = {
+    pending: 'Pending', paid: 'Paid', processing: 'Processing',
+    shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled'
+  };
+  const STATUS_COLORS = {
+    pending: '#888', paid: '#4caf50', processing: '#ff9800',
+    shipped: '#2196f3', delivered: '#d4af37', cancelled: '#c44'
+  };
+  const STATUS_ICONS = {
+    pending: '🛒', paid: '✓', processing: '📦',
+    shipped: '🚚', delivered: '✦', cancelled: '✕'
+  };
+
+  /* ── Load Orders ────────────────────────── */
+  async function loadOrders() {
+    try {
+      const res = await fetch('/api/orders');
+      orders = await res.json();
+    } catch {
+      orders = [];
+      showToast('Failed to load orders', 'error');
+    }
+    renderOrders();
+  }
+
+  function renderOrders() {
+    if (!ordersTbody) return;
+    const filter = orderFilter.value;
+    const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+
+    document.getElementById('order-count').textContent = filtered.length + ' order' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      ordersTbody.innerHTML = '<tr><td colspan="7" class="admin-empty">No orders found.</td></tr>';
+      return;
+    }
+
+    ordersTbody.innerHTML = filtered.map(o => {
+      const itemCount = (o.items || []).reduce((sum, it) => sum + (it.qty || 1), 0);
+      return `
+      <tr>
+        <td><span class="admin-product-id" style="font-size:.72rem;color:var(--gold-lt);">${o.payment_ref || o.id.slice(0, 8)}</span></td>
+        <td>
+          <span class="admin-product-name" style="font-size:.78rem;">${o.customer_name || '—'}</span>
+          <span class="admin-product-id">${o.customer_email}</span>
+        </td>
+        <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+        <td>${formatPrice(o.total)}</td>
+        <td><span class="order-status-badge" style="--status-color:${STATUS_COLORS[o.status] || '#888'};">${STATUS_LABELS[o.status] || o.status}</span></td>
+        <td>${new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+        <td>
+          <div class="admin-actions">
+            <button class="admin-btn-edit" data-oid="${o.id}" title="View / Update">⋯</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    ordersTbody.querySelectorAll('.admin-btn-edit').forEach(btn =>
+      btn.addEventListener('click', () => openOrderModal(btn.dataset.oid)));
+  }
+
+  orderFilter.addEventListener('change', renderOrders);
+
+  /* ── Order Detail Modal ─────────────────── */
+  function renderAdminTimeline(status) {
+    const container = document.getElementById('admin-timeline');
+    if (status === 'cancelled') {
+      container.innerHTML = '<div class="track-step cancelled active"><div class="track-dot">✕</div><span>Cancelled</span></div>';
+      return;
+    }
+    const currentIdx = STATUSES.indexOf(status);
+    container.innerHTML = STATUSES.map((s, i) => {
+      let cls = '';
+      if (i < currentIdx) cls = 'completed';
+      else if (i === currentIdx) cls = 'active';
+      return `<div class="track-step ${cls}"><div class="track-dot">${cls === 'completed' ? '✓' : STATUS_ICONS[s]}</div><span>${STATUS_LABELS[s]}</span></div>`;
+    }).join('<div class="track-line"></div>');
+  }
+
+  function openOrderModal(id) {
+    const o = orders.find(x => x.id === id);
+    if (!o) return;
+    viewingOrder = o;
+
+    document.getElementById('order-modal-title').textContent = 'Order — ' + (o.payment_ref || o.id.slice(0, 8));
+    document.getElementById('od-ref').textContent = o.payment_ref || o.id;
+    document.getElementById('od-customer').textContent = o.customer_name || '—';
+    document.getElementById('od-email').textContent = o.customer_email;
+    document.getElementById('od-date').textContent = new Date(o.created_at).toLocaleDateString('en-GB', { dateStyle: 'medium' });
+    document.getElementById('od-total').textContent = formatPrice(o.total);
+    document.getElementById('od-status').textContent = STATUS_LABELS[o.status] || o.status;
+    document.getElementById('od-status').style.color = STATUS_COLORS[o.status] || '#888';
+
+    document.getElementById('od-items').innerHTML = (o.items || []).map(it => `
+      <div class="track-item">
+        <span>${it.name}${it.size ? ' <small>(' + it.size + ')</small>' : ''} × ${it.qty || 1}</span>
+        <span class="gold">${it.price ? formatPrice(it.price) : '—'}</span>
+      </div>`).join('');
+
+    document.getElementById('od-status-select').value = o.status;
+    renderAdminTimeline(o.status);
+
+    orderModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeOrderModal() {
+    orderModal.classList.remove('active');
+    document.body.style.overflow = '';
+    viewingOrder = null;
+  }
+
+  document.getElementById('order-modal-close').addEventListener('click', closeOrderModal);
+  orderModal.addEventListener('click', e => { if (e.target === orderModal) closeOrderModal(); });
+
+  /* ── Update Order Status ────────────────── */
+  document.getElementById('od-update-btn').addEventListener('click', async () => {
+    if (!viewingOrder) return;
+    const newStatus = document.getElementById('od-status-select').value;
+    if (newStatus === viewingOrder.status) {
+      showToast('Status is already ' + STATUS_LABELS[newStatus], 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/${viewingOrder.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Update failed');
+
+      showToast('Order updated to ' + STATUS_LABELS[newStatus]);
+      viewingOrder.status = newStatus;
+
+      // Update modal UI
+      document.getElementById('od-status').textContent = STATUS_LABELS[newStatus];
+      document.getElementById('od-status').style.color = STATUS_COLORS[newStatus] || '#888';
+      renderAdminTimeline(newStatus);
+
+      // Refresh list
+      loadOrders();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
+
+  /* ═══════════════════════════════════════════
+     TAB NAVIGATION
+     ═══════════════════════════════════════════ */
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+      // Load orders on first switch
+      if (tab.dataset.tab === 'orders' && !orders.length) loadOrders();
+    });
   });
 
   /* ── Init ────────────────────────────────── */
   loadProducts();
+
+  // Setup Supabase Real-time updates for orders
+  if (typeof supabase !== 'undefined') {
+    supabase.channel('orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
+        if (payload.eventType === 'INSERT') {
+          orders.unshift(payload.new);
+          renderOrders();
+        } else if (payload.eventType === 'UPDATE') {
+          const index = orders.findIndex(o => o.id === payload.new.id);
+          if (index !== -1) {
+            orders[index] = payload.new;
+            renderOrders();
+
+            // If the modal is currently open for this order, update it too
+            if (viewingOrder && viewingOrder.id === payload.new.id) {
+               openOrderModal(viewingOrder.id);
+            }
+          } else {
+             // Just edge case if we didn't have it loaded yet, re-fetch
+             loadOrders();
+          }
+        }
+      })
+      .subscribe();
+  }
 });

@@ -4,6 +4,7 @@ const router = express.Router();
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const supabase = require('../lib/supabase');
+const { notifyAdmin } = require('../lib/notifications');
 
 const SECRET = process.env.PAYSTACK_SECRET_KEY;
 const PUBLIC = process.env.PAYSTACK_PUBLIC_KEY;
@@ -77,20 +78,30 @@ router.get('/verify/:reference', async (req, res) => {
       const data = psRes.data.data;
       if (data.status === 'success') {
         // Update order status in Supabase
-        await supabase
+        const { data: paidOrder } = await supabase
           .from('orders')
           .update({ status: 'paid' })
-          .eq('payment_ref', reference);
+          .eq('payment_ref', reference)
+          .select()
+          .single();
+
+        // Notify admin that payment is confirmed
+        if (paidOrder) notifyAdmin({ ...paidOrder, status: 'paid' }).catch(() => {});
         return res.json({ status: 'success', amount: data.amount / 100, reference });
       }
       return res.json({ status: 'failed' });
     }
 
     // Demo mode: auto-succeed
-    await supabase
+    const { data: demoOrder } = await supabase
       .from('orders')
       .update({ status: 'paid' })
-      .eq('payment_ref', reference);
+      .eq('payment_ref', reference)
+      .select()
+      .single();
+
+    // Notify admin that payment is confirmed (demo)
+    if (demoOrder) notifyAdmin({ ...demoOrder, status: 'paid' }).catch(() => {});
     res.json({ status: 'success', reference, mode: 'demo' });
   } catch (err) {
     console.error('Verify error:', err.message);

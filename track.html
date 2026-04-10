@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Track Your Order — AURUM</title>
+<meta name="description" content="Track the status of your AURUM order in real time." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="shop.html?season=fw2026">New Season</a></li>
+    <li><a href="track.html" style="color:var(--gold);">Track Order</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+    <a href="checkout.html" class="nav-cta">Checkout</a>
+  </div>
+</nav>
+
+<div class="page-hero" style="padding-bottom:3rem;">
+  <div class="orb orb-1"></div>
+  <h1 class="page-title"><em>Track</em> Your Order</h1>
+  <p class="page-subtitle">Enter your order reference to see its current status</p>
+</div>
+
+<!-- Search Section -->
+<div class="track-search-section">
+  <div class="track-search-box">
+    <label for="track-input">Order Reference</label>
+    <div class="track-input-row">
+      <input type="text" id="track-input" placeholder="e.g. AUR-A1B2C3D4" />
+      <button id="track-btn" class="btn-pay">Track</button>
+    </div>
+    <p class="track-hint">You can find your reference on your order confirmation or email receipt.</p>
+  </div>
+</div>
+
+<!-- Results (hidden until search) -->
+<div class="track-results" id="track-results" style="display:none;">
+  <div class="track-card">
+    <!-- Status Timeline -->
+    <div class="track-timeline" id="track-timeline"></div>
+
+    <!-- Order Info -->
+    <div class="track-info">
+      <div class="track-info-grid">
+        <div class="track-detail">
+          <span class="track-label">Reference</span>
+          <span class="track-value" id="track-ref">—</span>
+        </div>
+        <div class="track-detail">
+          <span class="track-label">Customer</span>
+          <span class="track-value" id="track-customer">—</span>
+        </div>
+        <div class="track-detail">
+          <span class="track-label">Date Placed</span>
+          <span class="track-value" id="track-date">—</span>
+        </div>
+        <div class="track-detail">
+          <span class="track-label">Est. Arrival</span>
+          <span class="track-value" id="track-eta">—</span>
+        </div>
+        <div class="track-detail">
+          <span class="track-label">Total</span>
+          <span class="track-value gold" id="track-total">—</span>
+        </div>
+      </div>
+
+      <h4 class="track-items-title">Items Ordered</h4>
+      <div id="track-items"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Error state -->
+<div class="track-error" id="track-error" style="display:none;">
+  <div class="track-error-icon">✕</div>
+  <p id="track-error-msg">Order not found.</p>
+  <button class="admin-btn-secondary" onclick="document.getElementById('track-error').style.display='none';">Try Again</button>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><div class="foot-brand">AURUM</div><p class="foot-tagline">Maison Aurum. Est. 1987.</p></div>
+    <div class="foot-col"><h4>Collections</h4><ul><li><a href="shop.html">All Pieces</a></li></ul></div>
+    <div class="foot-col"><h4>Atelier</h4><ul><li><a href="about.html">Our Story</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="mailto:hello@maison-aurum.com">hello@maison-aurum.com</a></li></ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-copy">© 2026 Maison Aurum. All rights reserved.</p>
+    <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script>
+/* ── AURUM — Order Tracking ─── */
+const STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered'];
+const STATUS_LABELS = {
+  pending: 'Order Placed',
+  paid: 'Payment Confirmed',
+  processing: 'Packaging',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled'
+};
+const STATUS_ICONS = {
+  pending: '🛒',
+  paid: '✓',
+  processing: '📦',
+  shipped: '🚚',
+  delivered: '✦',
+  cancelled: '✕'
+};
+
+function formatPrice(v) {
+  return 'GH₵ ' + Number(v).toLocaleString('en-GH', { minimumFractionDigits: 2 });
+}
+
+function renderTimeline(status) {
+  const container = document.getElementById('track-timeline');
+  if (status === 'cancelled') {
+    container.innerHTML = `<div class="track-step cancelled active"><div class="track-dot">✕</div><span>Cancelled</span></div>`;
+    return;
+  }
+  const currentIdx = STATUSES.indexOf(status);
+  container.innerHTML = STATUSES.map((s, i) => {
+    let cls = '';
+    if (i < currentIdx) cls = 'completed';
+    else if (i === currentIdx) cls = 'active';
+    return `
+      <div class="track-step ${cls}">
+        <div class="track-dot">${cls === 'completed' ? '✓' : STATUS_ICONS[s]}</div>
+        <span>${STATUS_LABELS[s]}</span>
+      </div>`;
+  }).join('<div class="track-line"></div>');
+}
+
+async function trackOrder() {
+  const ref = document.getElementById('track-input').value.trim().toUpperCase();
+  if (!ref) return;
+
+  document.getElementById('track-results').style.display = 'none';
+  document.getElementById('track-error').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/orders/track/' + encodeURIComponent(ref));
+    if (!res.ok) {
+      const json = await res.json();
+      throw new Error(json.error || 'Order not found');
+    }
+    const order = await res.json();
+
+    renderTimeline(order.status);
+    document.getElementById('track-ref').textContent = order.paymentRef;
+    document.getElementById('track-customer').textContent = order.customerName || '—';
+    document.getElementById('track-date').textContent = new Date(order.createdAt).toLocaleDateString('en-GB', { dateStyle: 'medium' });
+    
+    // Compute ETA (3-5 days from order creation)
+    const etaStart = new Date(order.createdAt);
+    etaStart.setDate(etaStart.getDate() + 3);
+    const etaEnd = new Date(order.createdAt);
+    etaEnd.setDate(etaEnd.getDate() + 5);
+    document.getElementById('track-eta').textContent = 
+      etaStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' - ' +
+      etaEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+    document.getElementById('track-total').textContent = formatPrice(order.total);
+
+    const itemsEl = document.getElementById('track-items');
+    itemsEl.innerHTML = (order.items || []).map(it => `
+      <div class="track-item">
+        <span>${it.name}${it.size ? ' <small>(' + it.size + ')</small>' : ''} × ${it.qty}</span>
+        <span class="gold">${it.price ? formatPrice(it.price) : '—'}</span>
+      </div>`).join('');
+
+    document.getElementById('track-results').style.display = 'block';
+  } catch (err) {
+    document.getElementById('track-error-msg').textContent = err.message;
+    document.getElementById('track-error').style.display = 'flex';
+  }
+}
+
+document.getElementById('track-btn').addEventListener('click', trackOrder);
+document.getElementById('track-input').addEventListener('keydown', e => { if (e.key === 'Enter') trackOrder(); });
+
+// Auto-track if ref is in URL
+const urlRef = new URLSearchParams(location.search).get('ref');
+if (urlRef) {
+  document.getElementById('track-input').value = urlRef;
+  trackOrder();
+}
+</script>
+</body>
+</html>

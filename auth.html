@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Account — AURUM</title>
+<meta name="description" content="Sign in or create an AURUM account." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/pages.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">AURUM</a>
+  <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  <ul class="nav-links">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">Atelier</a></li>
+    <li><a href="shop.html?season=fw2026">New Season</a></li>
+    <li><a href="index.html#testimonials">Stories</a></li>
+  </ul>
+  <div style="display:flex;gap:1.8rem;align-items:center;">
+    <a href="cart.html" class="nav-cart">Cart <span class="cart-badge">0</span></a>
+    <a href="auth.html" class="nav-cta" id="auth-nav-link">Sign In</a>
+  </div>
+</nav>
+
+<div class="page-hero" style="padding-bottom:3rem; min-height:40vh; display:flex; flex-direction:column; justify-content:center;">
+  <div class="orb orb-1"></div>
+  <h1 class="page-title"><em>Account</em></h1>
+</div>
+
+<div class="checkout-container" style="max-width: 500px; margin: 0 auto; display: block; grid-template-columns: 1fr;">
+  
+  <div class="checkout-form" id="auth-container">
+    <div style="display:flex; gap:1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(245,240,232,0.2); padding-bottom: 1rem;">
+      <button class="status-btn active" id="tab-login" style="flex:1; padding: 0.5rem; background:transparent; border:none; color:var(--gold); font-size:1.1rem; cursor:pointer;" onclick="switchTab('login')">Sign In</button>
+      <button class="status-btn" id="tab-register" style="flex:1; padding: 0.5rem; background:transparent; border:none; color:rgba(245,240,232,0.5); font-size:1.1rem; cursor:pointer;" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <form id="auth-form">
+      <div class="form-row full" id="name-field" style="display: none;">
+        <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" /></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label for="email">Email Address *</label><input type="email" id="email" required /></div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group"><label for="password">Password *</label><input type="password" id="password" required minlength="6" /></div>
+      </div>
+      <button type="submit" class="btn-pay" id="auth-btn">Sign In</button>
+    </form>
+    
+    <div id="auth-message" style="margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--gold); color:rgba(245,240,232,0.8); text-align: center; display:none; font-family:var(--font-secondary); line-height:1.5;"></div>
+  </div>
+
+  <div class="confirmation" id="auth-success" style="display:none; text-align:center;">
+    <div class="confirmation-icon">✓</div>
+    <h2>Welcome</h2>
+    <p id="success-text">You have successfully signed in.</p>
+    <a href="#" id="continue-btn" class="btn-primary" style="display:inline-block;margin-top:2rem;">Continue</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div><div class="foot-brand">AURUM</div><p class="foot-tagline">Maison Aurum. Est. 1987.</p></div>
+    <div class="foot-col"><h4>Collections</h4><ul><li><a href="shop.html">All Pieces</a></li></ul></div>
+    <div class="foot-col"><h4>Atelier</h4><ul><li><a href="about.html">Our Story</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="mailto:hello@maison-aurum.com">hello@maison-aurum.com</a></li></ul></div>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-copy">© 2026 Maison Aurum. All rights reserved.</p>
+    <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

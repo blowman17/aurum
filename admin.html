@@ -33,9 +33,18 @@
 <div class="page-hero">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <h1 class="page-title">Product <em>Manager</em></h1>
-  <p class="page-subtitle">Add, edit, and manage your collection</p>
+  <h1 class="page-title">Admin <em>Dashboard</em></h1>
+  <p class="page-subtitle">Manage your collection and orders</p>
 </div>
+
+<!-- Tab Navigation -->
+<div class="admin-tabs">
+  <button class="admin-tab active" data-tab="products">Products</button>
+  <button class="admin-tab" data-tab="orders">Orders</button>
+</div>
+
+<!-- ═══ PRODUCTS TAB ═══ -->
+<div class="admin-tab-content active" id="tab-products">
 
 <!-- Toolbar -->
 <div class="admin-toolbar">
@@ -61,6 +70,47 @@
     </tbody>
   </table>
 </div>
+
+</div><!-- end tab-products -->
+
+<!-- ═══ ORDERS TAB ═══ -->
+<div class="admin-tab-content" id="tab-orders">
+
+<div class="admin-toolbar">
+  <span class="admin-count" id="order-count">— orders</span>
+  <div class="admin-filter-row">
+    <select id="order-filter" class="admin-select">
+      <option value="all">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="paid">Paid</option>
+      <option value="processing">Processing</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Customer</th>
+        <th>Items</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="orders-tbody">
+      <tr><td colspan="7" class="admin-empty"><div class="spinner"></div></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- end tab-orders -->
 
 <!-- Add / Edit Modal -->
 <div class="admin-modal" id="product-modal">
@@ -150,6 +200,43 @@
     <div class="admin-form-footer">
       <button class="admin-btn-secondary" id="delete-cancel">Cancel</button>
       <button class="admin-btn-danger" id="delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="admin-modal" id="order-modal">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h2 id="order-modal-title">Order Details</h2>
+      <button class="admin-modal-close" id="order-modal-close">✕</button>
+    </div>
+    <div class="order-detail-body">
+      <div class="track-timeline" id="admin-timeline"></div>
+      <div class="order-detail-grid">
+        <div class="track-detail"><span class="track-label">Reference</span><span class="track-value" id="od-ref">—</span></div>
+        <div class="track-detail"><span class="track-label">Customer</span><span class="track-value" id="od-customer">—</span></div>
+        <div class="track-detail"><span class="track-label">Email</span><span class="track-value" id="od-email">—</span></div>
+        <div class="track-detail"><span class="track-label">Date</span><span class="track-value" id="od-date">—</span></div>
+        <div class="track-detail"><span class="track-label">Total</span><span class="track-value gold" id="od-total">—</span></div>
+        <div class="track-detail"><span class="track-label">Status</span><span class="track-value" id="od-status">—</span></div>
+      </div>
+      <h4 style="font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:2rem 0 1rem;">Items</h4>
+      <div id="od-items"></div>
+      <div class="order-status-update">
+        <label for="od-status-select">Update Status</label>
+        <div class="track-input-row">
+          <select id="od-status-select" class="admin-select">
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button class="admin-btn-primary" id="od-update-btn">Update</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,5 +1,17 @@
 /* ── AURUM — Checkout JS ──────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Auth Guard
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = 'auth.html?redirect=checkout.html';
+    return;
+  }
+  
+  const emailInput = document.getElementById('email');
+  if (emailInput) {
+    emailInput.value = session.user.email;
+  }
+
   const summaryList = document.getElementById('order-items');
   const subtotalEl = document.getElementById('order-subtotal');
   const totalEl = document.getElementById('order-total');

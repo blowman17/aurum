@@ -53,4 +53,36 @@ function showToast(msg, dur=2500){
 }
 
 /* ── FORMAT PRICE ────────────────────────────── */
-function formatPrice(a){ return 'GH₵ '+Number(a).toLocaleString('en-GH'); }
+function formatPrice(a){ return 'GH₵ '+Number(a).toLocaleString('en-GH', { minimumFractionDigits: 2 }); }
+
+/* ── AUTH NAV CHECKS ─────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  const authNav = document.getElementById('auth-nav-link');
+  // Update links site-wide where we have nav-cta for auth
+  const ctas = document.querySelectorAll('.nav-cta');
+  
+  if (typeof supabase !== 'undefined') {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      ctas.forEach(cta => {
+        // Find if any CTA points to auth
+        if (cta.id === 'auth-nav-link' || cta.href.includes('auth.html')) {
+          if (session) {
+            cta.textContent = 'Account';
+            cta.href = '#';
+            cta.addEventListener('click', async (e) => {
+              e.preventDefault();
+              if(confirm('Are you sure you want to sign out?')) {
+                await supabase.auth.signOut();
+                window.location.reload();
+              }
+            });
+          } else {
+            cta.textContent = 'Sign In';
+            cta.href = 'auth.html';
+          }
+        }
+      });
+    } catch(e) {}
+  }
+});

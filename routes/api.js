@@ -4,6 +4,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const supabase = require('../lib/supabase');
+const { notifyAdmin } = require('../lib/notifications');
 
 /* ── Image Upload Config ─────────────────── */
 const storage = multer.diskStorage({
@@ -205,6 +206,77 @@ router.get('/orders/:id', async (req, res) => {
     if (err.code === 'PGRST116') return res.status(404).json({ error: 'Order not found' });
     console.error('Order fetch error:', err.message);
     res.status(500).json({ error: 'Failed to fetch order' });
+  }
+});
+
+/* ── GET /api/orders — List all orders (admin) ── */
+router.get('/orders', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Orders fetch error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+/* ── PATCH /api/orders/:id/status — Update order status (admin) ── */
+router.patch('/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be one of: ' + validStatuses.join(', ') });
+    }
+
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Order not found' });
+
+    // Notify admin about status change (this also triggers customer notification via edge function)
+    notifyAdmin({ ...data, _statusUpdate: true }).catch(() => {});
+
+    res.json(data);
+  } catch (err) {
+    if (err.code === 'PGRST116') return res.status(404).json({ error: 'Order not found' });
+    console.error('Order status update error:', err.message);
+    res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
+/* ── GET /api/orders/track/:ref — Customer order tracking ── */
+router.get('/orders/track/:ref', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, items, customer_name, customer_email, total, status, payment_ref, created_at')
+      .eq('payment_ref', req.params.ref)
+      .single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Order not found' });
+
+    res.json({
+      id: data.id,
+      items: data.items,
+      customerName: data.customer_name,
+      total: data.total,
+      status: data.status,
+      paymentRef: data.payment_ref,
+      createdAt: data.created_at
+    });
+  } catch (err) {
+    if (err.code === 'PGRST116') return res.status(404).json({ error: 'Order not found. Check your reference number.' });
+    console.error('Order track error:', err.message);
+    res.status(500).json({ error: 'Failed to track order' });
   }
 });
 
