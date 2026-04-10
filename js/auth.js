@@ -48,15 +48,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     msgEl.style.color = isError ? '#ff4a4a' : 'var(--gold)';
   }
 
-  function showSuccess(msg) {
+  function showSuccess(msg, autoRedirect = true) {
     authContainer.style.display = 'none';
     successContainer.style.display = 'block';
-    successText.textContent = msg;
+    successText.innerHTML = msg;
     
-    // Check redirect param
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get('redirect') || 'index.html';
     continueBtn.href = redirect;
+    
+    if (autoRedirect) {
+      setTimeout(() => {
+        window.location.href = redirect;
+      }, 1500); // give them 1.5s to read the success message
+    } else {
+      continueBtn.style.display = 'inline-block';
+      continueBtn.textContent = 'Return Home';
+      continueBtn.href = 'index.html';
+    }
   }
 
   if (form) {
@@ -72,31 +81,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       const password = document.getElementById('password').value;
 
       try {
+        if (typeof supabase === 'undefined') {
+          throw new Error('Authentication service is unavailable. Please hard-refresh your browser.');
+        }
+
         if (authMode === 'login') {
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
           
-          showSuccess('You have successfully signed in.');
-          
+          showSuccess('You have successfully signed in. Redirecting...', true);
         } else {
           const fullName = document.getElementById('fullName').value;
           const { data, error } = await supabase.auth.signUp({ 
             email, 
             password,
-            options: {
-              data: { full_name: fullName }
-            }
+            options: { data: { full_name: fullName } }
           });
           if (error) throw error;
 
           if (data.user && data.user.identities && data.user.identities.length === 0) {
-            showMessage('Error: An account with this email address already exists.');
+            showMessage('Error: An account with this email address already exists. Try signing in.');
           } else if (data.session) {
             // Auto confirmed
-            showSuccess('Your account has been created successfully!');
+            showSuccess('Account created successfully! Redirecting...', true);
           } else {
             // Email confirmation required
-            showMessage('Welcome! <strong>Please check your email</strong> to confirm your account before you can sign in.', false);
+            showSuccess('Welcome! <strong>Please check your email</strong> to verify your account before you can continue to checkout.', false);
           }
         }
       } catch (err) {
