@@ -14,23 +14,11 @@
 <script src="js/supabase.js"></script>
 <style>
   .settings-container {
-    max-width: 900px;
+    max-width: 700px;
     margin: 6rem auto 10rem;
     padding: 0 2rem;
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 4rem;
-  }
-  @media (max-width: 768px) {
-    .settings-container { grid-template-columns: 1fr; gap: 2rem; }
   }
   
-  .settings-sidebar h3 { font-family: var(--font-primary); font-size: 2rem; font-style: italic; color: var(--gold); margin-bottom: 2rem; }
-  .settings-nav { list-style: none; padding: 0; }
-  .settings-nav li { margin-bottom: 1rem; }
-  .settings-nav a { color: var(--light); text-decoration: none; font-size: 0.9rem; font-family: var(--font-secondary); transition: var(--transition); letter-spacing: 0.05em; text-transform: uppercase; }
-  .settings-nav a:hover, .settings-nav a.active { color: var(--gold); }
-
   .settings-panel {
     background: rgba(10,10,10,0.6);
     border: 1px solid rgba(212,175,55,0.2);
@@ -57,7 +45,6 @@
     justify-content: center;
     font-size: 2.5rem;
     font-family: var(--font-primary);
-    font-style: italic;
     box-shadow: 0 10px 20px rgba(212,175,55,0.2);
   }
 
@@ -117,15 +104,6 @@
 </nav>
 
 <div class="settings-container">
-  <aside class="settings-sidebar">
-    <h3>Account</h3>
-    <ul class="settings-nav">
-      <li><a href="#" class="active">Profile Details</a></li>
-      <li><a href="track.html">Order History</a></li>
-      <li><a href="#" id="sidebar-logout">Log Out</a></li>
-    </ul>
-  </aside>
-
   <div class="settings-panel">
     <!-- Profile Form -->
     <div class="settings-section">
