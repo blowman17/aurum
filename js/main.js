@@ -27,14 +27,35 @@ if(nav){
   nav.classList.toggle('scrolled',window.scrollY>60);
 }
 
-/* ── MOBILE MENU ────────────────────────────── */
+/* ── MOBILE MENU & ACTION ALIGNMENT ────────────────── */
 const hamburger = document.querySelector('.nav-hamburger');
 const navLinks = document.querySelector('.nav-links');
+const navActionsWrapper = document.querySelector('nav > div[style*="align-items:center"]');
+
 if(hamburger && navLinks){
   hamburger.addEventListener('click',()=>navLinks.classList.toggle('open'));
   navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
-}
 
+  if (navActionsWrapper) {
+    const handleNavResize = () => {
+      if (window.innerWidth <= 900) {
+        if (navActionsWrapper.parentNode !== navLinks) {
+          navLinks.appendChild(navActionsWrapper);
+          navActionsWrapper.style.flexDirection = 'column';
+          navActionsWrapper.style.marginTop = '2rem';
+        }
+      } else {
+        if (navActionsWrapper.parentNode === navLinks) {
+          document.querySelector('#nav').appendChild(navActionsWrapper);
+          navActionsWrapper.style.flexDirection = 'row';
+          navActionsWrapper.style.marginTop = '0';
+        }
+      }
+    };
+    handleNavResize();
+    window.addEventListener('resize', handleNavResize);
+  }
+}
 /* ── REVEAL OBSERVER ────────────────────────── */
 const revealObs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{
