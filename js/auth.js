@@ -38,7 +38,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check if already logged in
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
-    showSuccess('You are already logged in.');
+    showSuccess('You are already logged in.', true);
+  }
+
+  // Password toggle
+  const togglePwdBtn = document.getElementById('toggle-password');
+  const pwdInput = document.getElementById('password');
+  if (togglePwdBtn && pwdInput) {
+    togglePwdBtn.addEventListener('click', () => {
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        togglePwdBtn.textContent = 'Hide';
+      } else {
+        pwdInput.type = 'password';
+        togglePwdBtn.textContent = 'Show';
+      }
+    });
   }
 
   function showMessage(text, isError=true) {
