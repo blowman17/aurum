@@ -1,15 +1,29 @@
 /* ── AURUM — Checkout JS ──────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
   // Auth Guard
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
+  try {
+    if (typeof supabase === 'undefined') {
+      window.location.href = 'auth.html?redirect=checkout.html';
+      return;
+    }
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      window.location.href = 'auth.html?redirect=checkout.html';
+      return;
+    }
+    
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+      emailInput.value = session.user.email || '';
+      // If for any reason the email is empty but session exists, allow them to type
+      if (!session.user.email) {
+        emailInput.removeAttribute('readonly');
+      }
+    }
+  } catch (err) {
+    console.error('Auth guard error:', err);
     window.location.href = 'auth.html?redirect=checkout.html';
     return;
-  }
-  
-  const emailInput = document.getElementById('email');
-  if (emailInput) {
-    emailInput.value = session.user.email;
   }
 
   const summaryList = document.getElementById('order-items');
