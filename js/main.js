@@ -65,18 +65,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const { data: { session } } = await window.supabaseClient.auth.getSession();
       ctas.forEach(cta => {
-        // Find if any CTA points to auth
         if (cta.id === 'auth-nav-link' || cta.href.includes('auth.html')) {
           if (session) {
-            cta.textContent = 'Account';
-            cta.href = '#';
-            cta.addEventListener('click', async (e) => {
-              e.preventDefault();
-              if(confirm('Are you sure you want to sign out?')) {
-                await window.supabaseClient.auth.signOut();
-                window.location.reload();
-              }
-            });
+            if (!cta.parentElement.classList.contains('auth-dropdown-wrapper')) {
+              const wrapper = document.createElement('div');
+              wrapper.className = 'auth-dropdown-wrapper';
+              cta.parentNode.insertBefore(wrapper, cta);
+              wrapper.appendChild(cta);
+
+              cta.innerHTML = 'Account <span style="font-size:0.6rem;margin-left:5px;">▼</span>';
+              cta.href = '#';
+              
+              const dropdown = document.createElement('div');
+              dropdown.className = 'auth-dropdown';
+              dropdown.innerHTML = `
+                <a href="#">Account Settings</a>
+                <a href="track.html">Track Orders</a>
+                <a href="#" id="auth-logout-btn">Log Out</a>
+              `;
+              wrapper.appendChild(dropdown);
+
+              cta.addEventListener('click', (e) => {
+                e.preventDefault();
+                dropdown.classList.toggle('show');
+              });
+
+              document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) dropdown.classList.remove('show');
+              });
+
+              dropdown.querySelector('#auth-logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                if(confirm('Are you sure you want to sign out?')) {
+                  await window.supabaseClient.auth.signOut();
+                  window.location.reload();
+                }
+              });
+            }
           } else {
             cta.textContent = 'Sign In';
             cta.href = 'auth.html';
