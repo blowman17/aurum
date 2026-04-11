@@ -1,11 +1,21 @@
 /* ── AURUM — Checkout JS ──────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
+async function initCheckout() {
+  const form = document.getElementById('checkout-form');
+  const summaryList = document.getElementById('order-items');
+  if(!form && !summaryList) return;
+
   // Auth Guard
   try {
+    if (typeof window.supabaseClient === 'undefined') {
+      // Small delay to allow script load if it was just injected
+      await new Promise(r => setTimeout(r, 500));
+    }
+    
     if (typeof window.supabaseClient === 'undefined') {
       window.location.href = 'auth.html?redirect=checkout.html';
       return;
     }
+
     const { data: { session }, error } = await window.supabaseClient.auth.getSession();
     if (error || !session) {
       window.location.href = 'auth.html?redirect=checkout.html';
@@ -15,10 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const emailInput = document.getElementById('email');
     if (emailInput) {
       emailInput.value = session.user.email || '';
-      // If for any reason the email is empty but session exists, allow them to type
-      if (!session.user.email) {
-        emailInput.removeAttribute('readonly');
-      }
+      if (!session.user.email) emailInput.removeAttribute('readonly');
     }
   } catch (err) {
     console.error('Auth guard error:', err);
@@ -26,11 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  const summaryList = document.getElementById('order-items');
   const subtotalEl = document.getElementById('order-subtotal');
   const totalEl = document.getElementById('order-total');
   const payBtn = document.getElementById('pay-btn');
-  const form = document.getElementById('checkout-form');
 
   function renderSummary() {
     const cart = CartManager.getCart();
@@ -54,15 +59,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderSummary();
 
   if (payBtn && form) {
-    form.addEventListener('submit', async e => {
+    // Remove existing listeners if any to prevent duplicates during re-init
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    
+    newForm.addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const firstName = document.getElementById('firstName').value;
       const lastName = document.getElementById('lastName').value;
       if (!email || !firstName) { showToast('Please fill required fields'); return; }
 
-      payBtn.disabled = true;
-      payBtn.textContent = 'PROCESSING...';
+      const actualBtn = document.getElementById('pay-btn');
+      actualBtn.disabled = true;
+      actualBtn.textContent = 'PROCESSING...';
 
       try {
         const res = await fetch('/api/payments/initialize', {
@@ -79,17 +89,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data.authorization_url) {
           window.location.href = data.authorization_url;
         } else if (data.reference) {
-          // Inline popup mode
           launchPaystackPopup(data);
         } else {
           showToast('Payment init failed');
-          payBtn.disabled = false;
-          payBtn.textContent = 'PAY NOW';
+          actualBtn.disabled = false;
+          actualBtn.textContent = 'PAY NOW';
         }
       } catch (err) {
         showToast('Network error. Please retry.');
-        payBtn.disabled = false;
-        payBtn.textContent = 'PAY NOW';
+        actualBtn.disabled = false;
+        actualBtn.textContent = 'PAY NOW';
       }
     });
   }
@@ -97,8 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   function launchPaystackPopup(data) {
     if (typeof PaystackPop === 'undefined') {
       showToast('Payment system loading...');
-      payBtn.disabled = false;
-      payBtn.textContent = 'PAY NOW';
+      const actualBtn = document.getElementById('pay-btn');
+      if(actualBtn) {
+        actualBtn.disabled = false;
+        actualBtn.textContent = 'PAY NOW';
+      }
       return;
     }
     const handler = PaystackPop.setup({
@@ -111,8 +123,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         verifyPayment(response.reference);
       },
       onClose: function() {
-        payBtn.disabled = false;
-        payBtn.textContent = 'PAY NOW';
+        const actualBtn = document.getElementById('pay-btn');
+        if(actualBtn) {
+          actualBtn.disabled = false;
+          actualBtn.textContent = 'PAY NOW';
+        }
         showToast('Payment cancelled');
       }
     });
@@ -128,24 +143,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'checkout.html?success=true&ref=' + ref;
       } else {
         showToast('Payment could not be verified');
-        payBtn.disabled = false;
-        payBtn.textContent = 'PAY NOW';
+        const actualBtn = document.getElementById('pay-btn');
+        if(actualBtn) {
+            actualBtn.disabled = false;
+            actualBtn.textContent = 'PAY NOW';
+        }
       }
     } catch {
       showToast('Verification failed. Contact support.');
-      payBtn.disabled = false;
-      payBtn.textContent = 'PAY NOW';
+      const actualBtn = document.getElementById('pay-btn');
+      if(actualBtn) {
+          actualBtn.disabled = false;
+          actualBtn.textContent = 'PAY NOW';
+      }
     }
   }
 
   // Check for success redirect
   const params = new URLSearchParams(window.location.search);
   if (params.get('success') === 'true') {
-    document.querySelector('.checkout-container').style.display = 'none';
+    const cont = document.querySelector('.checkout-container');
+    if(cont) cont.style.display = 'none';
     const conf = document.getElementById('confirmation');
     if (conf) conf.style.display = 'flex';
     const refEl = document.getElementById('order-ref');
     if (refEl) refEl.textContent = 'REF: ' + (params.get('ref') || 'N/A');
     CartManager.clear();
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initCheckout);
+window.initCheckout = initCheckout;

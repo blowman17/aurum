@@ -47,7 +47,7 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 10001;
   pointer-events: none;
   width: 10px;
   height: 10px;
@@ -62,7 +62,7 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9998;
+  z-index: 10001;
   pointer-events: none;
   width: 36px;
   height: 36px;
@@ -401,21 +401,45 @@ nav.scrolled {
 
 .auth-dropdown {
   position: absolute;
-  top: calc(100% + 15px);
+  top: 100%;
   right: 0;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 4px;
-  min-width: 200px;
+  width: 220px;
+  background: var(--mid);
+  border: 1px solid var(--border);
+  margin-top: 1.2rem;
+  padding: 0.8rem 0;
+  display: flex;
+  flex-direction: column;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+  transition: all .4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Wishlist Button matching + button */
+.product-card-wish, .product-detail-wish {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .3s ease;
+  font-size: 1.1rem;
+  color: var(--gold);
+  background: transparent;
+  cursor: none;
+}
+
+.product-card-wish:hover, .product-card-wish.active,
+.product-detail-wish:hover, .product-detail-wish.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--obsidian);
+}
+
+.product-detail-wish {
+  width: 44px; height: 44px; /* match qty buttons */
 }
 
 .auth-dropdown.show {
@@ -424,32 +448,29 @@ nav.scrolled {
   transform: translateY(0);
 }
 
-.auth-dropdown a,
-.auth-dropdown button {
-  padding: 1rem 1.2rem;
-  color: var(--light);
+.auth-dropdown a, .auth-dropdown button {
+  padding: 1rem 1.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, 0.6);
   text-decoration: none;
-  font-family: var(--font-secondary);
-  font-size: 0.85rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.3s, color 0.3s;
+  transition: all 0.3s;
   background: transparent;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  cursor: pointer;
+  border: none;
+  text-align: left;
+  cursor: none;
+  font-family: var(--sans);
+  width: 100%;
 }
 
-.auth-dropdown a:last-child,
-.auth-dropdown button:last-child {
-  border-bottom: none;
+.auth-dropdown a:hover, .auth-dropdown button:hover {
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold-lt);
 }
 
-.auth-dropdown a:hover,
-.auth-dropdown button:hover {
-  background: rgba(212, 175, 55, 0.1);
-  color: var(--gold);
+.auth-dropdown a:not(:last-child), .auth-dropdown button:not(:last-child) {
+  border-bottom: 1px solid rgba(201, 168, 76, 0.05);
 }
 
 .btn-ghost {
@@ -1374,3 +1395,139 @@ canvas {
   position: relative;
   z-index: 10;
 }
+
+/* ── 3D ENHANCEMENTS ────────────────────────── */
+canvas {
+  touch-action: none;
+}
+
+#hero {
+  z-index: 10;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* ── SWUP IMMERSIVE TRANSITIONS ───────────────────────── */
+.transition-fade {
+  transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html.is-animating .transition-fade {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ── LOGOUT CONFIRMATION MODAL ──────────────── */
+#logout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+#logout-modal.show { pointer-events: all; }
+
+.logout-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,9,12,.75);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+#logout-modal.show .logout-modal-backdrop { opacity: 1; }
+
+.logout-modal-card {
+  position: relative;
+  background: var(--mid);
+  border: 1px solid var(--border);
+  padding: 3rem 2.5rem 2.5rem;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  opacity: 0;
+  transform: scale(.92) translateY(16px);
+  transition: opacity .35s cubic-bezier(.23,1,.32,1), transform .35s cubic-bezier(.23,1,.32,1);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+#logout-modal.show .logout-modal-card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.logout-modal-icon {
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  width: 56px; height: 56px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.logout-modal-card h3 {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 300;
+  margin-bottom: .6rem;
+  color: var(--cream);
+}
+
+.logout-modal-card p {
+  font-size: .78rem;
+  color: rgba(245,240,232,.45);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.logout-modal-actions {
+  display: flex;
+  gap: .8rem;
+}
+
+.logout-modal-cancel,
+.logout-modal-confirm {
+  flex: 1;
+  padding: .8rem 1.2rem;
+  font-family: var(--sans);
+  font-size: .6rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: none;
+  transition: all .3s ease;
+}
+
+.logout-modal-cancel {
+  background: transparent;
+  border: 1px solid rgba(245,240,232,.15);
+  color: rgba(245,240,232,.6);
+}
+.logout-modal-cancel:hover {
+  border-color: rgba(245,240,232,.35);
+  color: var(--cream);
+}
+
+.logout-modal-confirm {
+  background: var(--gold);
+  color: var(--obsidian);
+}
+.logout-modal-confirm:hover {
+  background: var(--gold-lt);
+  transform: translateY(-1px);
+}
+.logout-modal-confirm:disabled {
+  opacity: .6;
+  pointer-events: none;
+}

@@ -13,21 +13,23 @@ function switchTab(mode) {
   if (msg) msg.style.display = 'none';
 
   if (mode === 'login') {
-    loginTab.style.color = 'var(--gold)';
-    regTab.style.color = 'rgba(245,240,232,0.5)';
-    nameField.style.display = 'none';
-    document.getElementById('fullName').removeAttribute('required');
-    authBtn.textContent = 'Sign In';
+    if(loginTab) loginTab.style.color = 'var(--gold)';
+    if(regTab) regTab.style.color = 'rgba(245,240,232,0.5)';
+    if(nameField) nameField.style.display = 'none';
+    const fullName = document.getElementById('fullName');
+    if(fullName) fullName.removeAttribute('required');
+    if(authBtn) authBtn.textContent = 'Sign In';
   } else {
-    regTab.style.color = 'var(--gold)';
-    loginTab.style.color = 'rgba(245,240,232,0.5)';
-    nameField.style.display = 'block';
-    document.getElementById('fullName').setAttribute('required', 'true');
-    authBtn.textContent = 'Create Account';
+    if(regTab) regTab.style.color = 'var(--gold)';
+    if(loginTab) loginTab.style.color = 'rgba(245,240,232,0.5)';
+    if(nameField) nameField.style.display = 'block';
+    const fullName = document.getElementById('fullName');
+    if(fullName) fullName.setAttribute('required', 'true');
+    if(authBtn) authBtn.textContent = 'Create Account';
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initAuth() {
   const form = document.getElementById('auth-form');
   const msgEl = document.getElementById('auth-message');
   const authContainer = document.getElementById('auth-container');
@@ -35,10 +37,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const successText = document.getElementById('success-text');
   const continueBtn = document.getElementById('continue-btn');
 
+  if(!form && !authContainer) return;
+
   // Check if already logged in
-  const { data: { session } } = await window.supabaseClient.auth.getSession();
-  if (session) {
-    showSuccess('You are already logged in.', true);
+  if (window.supabaseClient) {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (session) {
+      showSuccess('You are already logged in.', true);
+    }
   }
 
   // Password toggle
@@ -57,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function showMessage(text, isError=true) {
+    if(!msgEl) return;
     msgEl.innerHTML = text;
     msgEl.style.display = 'block';
     msgEl.style.borderColor = isError ? '#ff4a4a' : 'var(--gold)';
@@ -64,19 +71,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function showSuccess(msg, autoRedirect = true) {
-    authContainer.style.display = 'none';
-    successContainer.style.display = 'block';
-    successText.innerHTML = msg;
+    if(authContainer) authContainer.style.display = 'none';
+    if(successContainer) successContainer.style.display = 'flex';
+    if(successText) successText.innerHTML = msg;
     
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get('redirect') || 'index.html';
-    continueBtn.href = redirect;
+    if(continueBtn) continueBtn.href = redirect;
     
     if (autoRedirect) {
       setTimeout(() => {
         window.location.href = redirect;
-      }, 1500); // give them 1.5s to read the success message
-    } else {
+      }, 1500);
+    } else if(continueBtn) {
       continueBtn.style.display = 'inline-block';
       continueBtn.textContent = 'Return Home';
       continueBtn.href = 'index.html';
@@ -86,8 +93,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      msgEl.style.display = 'none';
+      if(msgEl) msgEl.style.display = 'none';
       const btn = document.getElementById('auth-btn');
+      if(!btn) return;
       const originalText = btn.textContent;
       btn.textContent = 'PROCESSING...';
       btn.disabled = true;
@@ -103,7 +111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (authMode === 'login') {
           const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          
+          // Sync cart & wishlist to this user's keys
+          if (typeof CartManager !== 'undefined') await CartManager.syncUser();
+          if (window.WishlistManager) await window.WishlistManager.syncUser();
           showSuccess('You have successfully signed in. Redirecting...', true);
         } else {
           const fullName = document.getElementById('fullName').value;
@@ -117,10 +127,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (data.user && data.user.identities && data.user.identities.length === 0) {
             showMessage('Error: An account with this email address already exists. Try signing in.');
           } else if (data.session) {
-            // Auto confirmed
+            // Sync cart & wishlist to new user's keys
+            if (typeof CartManager !== 'undefined') await CartManager.syncUser();
+            if (window.WishlistManager) await window.WishlistManager.syncUser();
             showSuccess('Account created successfully! Redirecting...', true);
           } else {
-            // Email confirmation required
             showSuccess('Welcome! <strong>Please check your email</strong> to verify your account before you can continue to checkout.', false);
           }
         }
@@ -132,30 +143,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initAuth();
 });
-
-// Create global helper to check auth state across other pages (loaded via main.js)
-window.updateAuthNav = async function() {
-  const authNav = document.getElementById('auth-nav-link');
-  if (!authNav) return;
-
-  try {
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    if (session) {
-      authNav.textContent = 'Account';
-      authNav.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const doLogout = confirm('Are you sure you want to sign out?');
-        if (doLogout) {
-          await window.supabaseClient.auth.signOut();
-          window.location.reload();
-        }
-      });
-    } else {
-      authNav.textContent = 'Sign In';
-      authNav.href = 'auth.html';
-    }
-  } catch (e) { console.error('Auth check error', e); }
-};
-
-document.addEventListener('DOMContentLoaded', updateAuthNav);
+window.initAuth = initAuth;

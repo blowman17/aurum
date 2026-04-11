@@ -1,8 +1,11 @@
 /* ── AURUM — Homepage-specific JS ─────────── */
-document.addEventListener('DOMContentLoaded', () => {
+function initHomepage() {
+  const isHomepage = document.getElementById('hero') || document.getElementById('philosophy');
+  if (!isHomepage) return;
 
   /* ── COUNTER ANIMATION ────────────────────── */
   function animCount(el, target, suffix='', duration=1800) {
+    if (!el) return;
     let start = null;
     function step(ts) {
       if (!start) start = ts;
@@ -31,12 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── PARALLAX ORBS ────────────────────────── */
   const heroOrbs = document.querySelectorAll('#hero .orb');
   if (heroOrbs.length) {
+    // Note: Scroll listeners should be added with care during Swup transitions.
+    // We bind it here, but typically main.js handles global scroll stuff.
     window.addEventListener('scroll', () => {
       const sy = window.scrollY;
       heroOrbs.forEach((orb, i) => {
         orb.style.transform = 'translateY(' + (sy * (0.08 + i * 0.03)) + 'px)';
       });
-    });
+    }, { passive: true });
   }
 
   /* ── TILT ON CARDS ────────────────────────── */
@@ -58,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const glassBanner = document.getElementById('glass-banner');
   if (glassPanel && glassBanner) {
     glassBanner.addEventListener('mousemove', e => {
-      const r = e.currentTarget.getBoundingClientRect();
+      const r = glassBanner.getBoundingClientRect();
       const x = ((e.clientX - r.left) / r.width - .5) * 18;
       const y = ((e.clientY - r.top) / r.height - .5) * 18;
       glassPanel.style.transform = 'perspective(1000px) rotateY('+x+'deg) rotateX('+(-y)+'deg)';
@@ -105,11 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', e => {
       e.preventDefault();
       const card = btn.closest('.feat-card');
-      const name = card.querySelector('.feat-name').textContent;
-      const priceText = card.querySelector('.feat-price').textContent;
+      if(!card) return;
+      const nameEl = card.querySelector('.feat-name');
+      const priceEl = card.querySelector('.feat-price');
+      if(!nameEl || !priceEl) return;
+      
+      const name = nameEl.textContent;
+      const priceText = priceEl.textContent;
       const price = parseInt(priceText.replace(/[^0-9]/g, ''));
       const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const gradient = card.querySelector('.feat-img').style.background || '';
+      const imgEl = card.querySelector('.feat-img');
+      const gradient = imgEl ? (imgEl.style.background || '') : '';
       CartManager.addItem({ id, name, price, collection:'FW 2026', gradient }, 1);
     });
   });
@@ -117,8 +128,14 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── COLLECTION VIEW PIECE LINKS ──────────── */
   document.querySelectorAll('.col-hover-btn').forEach(btn => {
     const card = btn.closest('.col-card');
-    const name = card.querySelector('.col-name').textContent;
+    if(!card) return;
+    const nameEl = card.querySelector('.col-name');
+    if(!nameEl) return;
+    const name = nameEl.textContent;
     const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     btn.href = 'product.html?id=' + id;
   });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initHomepage);
+window.initHomepage = initHomepage;

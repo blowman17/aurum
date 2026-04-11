@@ -5,64 +5,87 @@ const cursor = document.getElementById('cursor');
 const ring   = document.getElementById('cursor-ring');
 let mx=0, my=0, rx=0, ry=0;
 
-document.addEventListener('mousemove', e => {
-  mx=e.clientX; my=e.clientY;
-  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
-});
-(function animRing(){
-  rx+=(mx-rx)*.14; ry+=(my-ry)*.14;
-  ring.style.left=rx+'px'; ring.style.top=ry+'px';
-  requestAnimationFrame(animRing);
-})();
+if(cursor && ring) {
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  });
+  (function animRing(){
+    rx+=(mx-rx)*.14; ry+=(my-ry)*.14;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(animRing);
+  })();
+}
 
-document.querySelectorAll('a,button,.col-card,.feat-card,.feat-add,.nav-cta,.product-card,.filter-btn,.size-btn,.qty-btn,.btn-add-cart,.btn-pay,.product-card-add,.cart-item-remove').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
-});
+function bindHovers() {
+  document.querySelectorAll('a,button,.col-card,.feat-card,.feat-add,.nav-cta,.product-card,.filter-btn,.size-btn,.qty-btn,.btn-add-cart,.btn-pay,.product-card-add,.cart-item-remove').forEach(el=>{
+    // Use removeEventListener trick if needed, but Swup replaces elements anyway
+    el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+  });
+}
+window.bindHovers = bindHovers;
 
 /* ── NAV SCROLL ─────────────────────────────── */
-const nav = document.getElementById('nav');
-if(nav){
-  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60));
-  nav.classList.toggle('scrolled',window.scrollY>60);
-}
+function initNav() {
+  const nav = document.getElementById('nav');
+  const hamburger = document.querySelector('.nav-hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  const navActionsWrapper = document.querySelector('nav > div[style*="align-items:center"]');
 
-/* ── MOBILE MENU & ACTION ALIGNMENT ────────────────── */
-const hamburger = document.querySelector('.nav-hamburger');
-const navLinks = document.querySelector('.nav-links');
-const navActionsWrapper = document.querySelector('nav > div[style*="align-items:center"]');
+  if(nav){
+    window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60), {passive:true});
+    nav.classList.toggle('scrolled',window.scrollY>60);
+  }
 
-if(hamburger && navLinks){
-  hamburger.addEventListener('click',()=>navLinks.classList.toggle('open'));
-  navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
+  if(hamburger && navLinks){
+    // New clone to clear old listeners if re-initted
+    const newHam = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(newHam, hamburger);
+    
+    newHam.addEventListener('click',()=>navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
 
-  if (navActionsWrapper) {
-    const handleNavResize = () => {
-      if (window.innerWidth <= 900) {
-        if (navActionsWrapper.parentNode !== navLinks) {
-          navLinks.appendChild(navActionsWrapper);
-          navActionsWrapper.style.flexDirection = 'column';
-          navActionsWrapper.style.marginTop = '2rem';
+    if (navActionsWrapper) {
+      const handleNavResize = () => {
+        if (window.innerWidth <= 900) {
+          if (navActionsWrapper.parentNode !== navLinks) {
+            navLinks.appendChild(navActionsWrapper);
+            navActionsWrapper.style.flexDirection = 'column';
+            navActionsWrapper.style.marginTop = '2rem';
+          }
+        } else {
+          if (navActionsWrapper.parentNode === navLinks) {
+            const navbar = document.getElementById('nav');
+            if(navbar) {
+              navbar.appendChild(navActionsWrapper);
+              navActionsWrapper.style.flexDirection = 'row';
+              navActionsWrapper.style.marginTop = '0';
+            }
+          }
         }
-      } else {
-        if (navActionsWrapper.parentNode === navLinks) {
-          document.querySelector('#nav').appendChild(navActionsWrapper);
-          navActionsWrapper.style.flexDirection = 'row';
-          navActionsWrapper.style.marginTop = '0';
-        }
-      }
-    };
-    handleNavResize();
-    window.addEventListener('resize', handleNavResize);
+      };
+      handleNavResize();
+      window.removeEventListener('resize', handleNavResize);
+      window.addEventListener('resize', handleNavResize);
+    }
   }
 }
+
 /* ── REVEAL OBSERVER ────────────────────────── */
 const revealObs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('visible'); revealObs.unobserve(e.target); }
   });
-},{threshold:.15});
-document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+},{threshold:.10}); // Lowered threshold slightly for better reliability
+
+function refreshReveal() {
+  document.querySelectorAll('.reveal').forEach(el=> {
+    el.classList.remove('visible'); // reset before re-observing
+    revealObs.observe(el);
+  });
+}
+window.refreshReveal = refreshReveal;
 
 /* ── TOAST ───────────────────────────────────── */
 function showToast(msg, dur=2500){
@@ -72,63 +95,135 @@ function showToast(msg, dur=2500){
   clearTimeout(t._tm);
   t._tm=setTimeout(()=>t.classList.remove('show'),dur);
 }
+window.showToast = showToast;
 
 /* ── FORMAT PRICE ────────────────────────────── */
 function formatPrice(a){ return 'GH₵ '+Number(a).toLocaleString('en-GH', { minimumFractionDigits: 2 }); }
+window.formatPrice = formatPrice;
 
-/* ── AUTH NAV CHECKS ─────────────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-  const authNav = document.getElementById('auth-nav-link');
-  // Update links site-wide where we have nav-cta for auth
+/* ── GLOBAL AUTH NAV ─────────────────────────── */
+async function updateAuth() {
   const ctas = document.querySelectorAll('.nav-cta');
-  
-  if (typeof window.supabaseClient !== 'undefined') {
-    try {
-      const { data: { session } } = await window.supabaseClient.auth.getSession();
-      ctas.forEach(cta => {
-        if (cta.id === 'auth-nav-link' || cta.href.includes('auth.html')) {
-          if (session) {
-            if (!cta.parentElement.classList.contains('auth-dropdown-wrapper')) {
-              const wrapper = document.createElement('div');
-              wrapper.className = 'auth-dropdown-wrapper';
-              cta.parentNode.insertBefore(wrapper, cta);
-              wrapper.appendChild(cta);
+  if (!ctas.length || typeof window.supabaseClient === 'undefined') return;
 
-              cta.innerHTML = 'Account <span style="font-size:0.6rem;margin-left:5px;">▼</span>';
-              cta.href = '#';
-              
-              const dropdown = document.createElement('div');
-              dropdown.className = 'auth-dropdown';
-              dropdown.innerHTML = `
-                <a href="settings.html">Account Settings</a>
-                <a href="track.html">Track Orders</a>
-                <a href="#" id="auth-logout-btn">Log Out</a>
-              `;
-              wrapper.appendChild(dropdown);
+  try {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    ctas.forEach(cta => {
+      // Check if it's an auth link
+      if (cta.id === 'auth-nav-link' || cta.href.includes('auth.html')) {
+        if (session) {
+          // If not already wrapped
+          if (!cta.parentElement.classList.contains('auth-dropdown-wrapper')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'auth-dropdown-wrapper';
+            cta.parentNode.insertBefore(wrapper, cta);
+            wrapper.appendChild(cta);
 
-              cta.addEventListener('click', (e) => {
+            cta.innerHTML = 'Account <span style="font-size:0.6rem;margin-left:5px;">▼</span>';
+            cta.href = '#';
+            
+            const dropdown = document.createElement('div');
+            dropdown.className = 'auth-dropdown';
+            dropdown.innerHTML = `
+              <a href="settings.html">Account Settings</a>
+              <a href="wishlist.html">Wishlist</a>
+              <a href="track.html">Track Order</a>
+              <a href="#" id="auth-logout-btn">Log Out</a>
+            `;
+            wrapper.appendChild(dropdown);
+
+            cta.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              dropdown.classList.toggle('show');
+            };
+
+            // Click outside to close
+            document.addEventListener('click', (e) => {
+              if (!wrapper.contains(e.target)) {
+                dropdown.classList.remove('show');
+              }
+            });
+
+            const logoutBtn = dropdown.querySelector('#auth-logout-btn');
+            if(logoutBtn) {
+              logoutBtn.onclick = (e) => {
                 e.preventDefault();
-                dropdown.classList.toggle('show');
-              });
-
-              document.addEventListener('click', (e) => {
-                if (!wrapper.contains(e.target)) dropdown.classList.remove('show');
-              });
-
-              dropdown.querySelector('#auth-logout-btn').addEventListener('click', async (e) => {
-                e.preventDefault();
-                if(confirm('Are you sure you want to sign out?')) {
-                  await window.supabaseClient.auth.signOut();
-                  window.location.reload();
-                }
-              });
+                dropdown.classList.remove('show');
+                showLogoutModal();
+              };
             }
-          } else {
-            cta.textContent = 'Sign In';
-            cta.href = 'auth.html';
           }
+        } else {
+          // If previously wrapped, unwrap it
+          if (cta.parentElement.classList.contains('auth-dropdown-wrapper')) {
+            const wrapper = cta.parentElement;
+            const dropdown = wrapper.querySelector('.auth-dropdown');
+            if (dropdown) dropdown.remove();
+            wrapper.parentNode.insertBefore(cta, wrapper);
+            wrapper.remove();
+          }
+          cta.textContent = 'Sign In';
+          cta.href = 'auth.html';
+          cta.onclick = null; // Remove the dropdown toggle
         }
-      });
-    } catch(e) {}
-  }
-});
+      }
+    });
+  } catch(e) {}
+}
+window.updateAuth = updateAuth;
+
+/* ── LOGOUT CONFIRMATION MODAL ─────────────── */
+function showLogoutModal() {
+  // Prevent duplicates
+  if (document.getElementById('logout-modal')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'logout-modal';
+  overlay.innerHTML = `
+    <div class="logout-modal-backdrop"></div>
+    <div class="logout-modal-card">
+      <div class="logout-modal-icon">⎋</div>
+      <h3>Sign Out</h3>
+      <p>Are you sure you want to sign out of your account?</p>
+      <div class="logout-modal-actions">
+        <button class="logout-modal-cancel">Cancel</button>
+        <button class="logout-modal-confirm">Sign Out</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Animate in
+  requestAnimationFrame(() => overlay.classList.add('show'));
+
+  const close = () => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 350);
+  };
+
+  overlay.querySelector('.logout-modal-cancel').onclick = close;
+  overlay.querySelector('.logout-modal-backdrop').onclick = close;
+
+  overlay.querySelector('.logout-modal-confirm').onclick = async () => {
+    const btn = overlay.querySelector('.logout-modal-confirm');
+    btn.textContent = 'Signing out…';
+    btn.disabled = true;
+    await window.supabaseClient.auth.signOut();
+    if (typeof CartManager !== 'undefined') await CartManager.syncUser();
+    if (window.WishlistManager) await window.WishlistManager.syncUser();
+    window.location.href = 'index.html';
+  };
+}
+window.showLogoutModal = showLogoutModal;
+
+/* ── INITIALIZATION CALL ────────────────────── */
+function initMain() {
+  bindHovers();
+  initNav();
+  refreshReveal();
+  updateAuth();
+}
+
+document.addEventListener('DOMContentLoaded', initMain);
+window.initMain = initMain;
