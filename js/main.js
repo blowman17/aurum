@@ -26,12 +26,12 @@ function bindHovers() {
 }
 window.bindHovers = bindHovers;
 
-/* ── NAV SCROLL ─────────────────────────────── */
+/* ── NAV SCROLL + MOBILE ───────────────────── */
 function initNav() {
   const nav = document.getElementById('nav');
   const hamburger = document.querySelector('.nav-hamburger');
   const navLinks = document.querySelector('.nav-links');
-  const navActionsWrapper = document.querySelector('nav > div[style*="align-items:center"]');
+  const actionsDiv = nav ? nav.querySelector(':scope > div[style]') : null;
 
   if(nav){
     window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60), {passive:true});
@@ -39,35 +39,41 @@ function initNav() {
   }
 
   if(hamburger && navLinks){
-    // New clone to clear old listeners if re-initted
     const newHam = hamburger.cloneNode(true);
     hamburger.parentNode.replaceChild(newHam, hamburger);
-    
-    newHam.addEventListener('click',()=>navLinks.classList.toggle('open'));
-    navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
 
-    if (navActionsWrapper) {
-      const handleNavResize = () => {
+    newHam.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      newHam.classList.toggle('active');
+    });
+
+    // Close menu when any link inside is clicked
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') {
+        navLinks.classList.remove('open');
+        newHam.classList.remove('active');
+      }
+    });
+
+    // Move cart/account into nav-links on mobile
+    if (actionsDiv) {
+      const mobileActions = () => {
         if (window.innerWidth <= 900) {
-          if (navActionsWrapper.parentNode !== navLinks) {
-            navLinks.appendChild(navActionsWrapper);
-            navActionsWrapper.style.flexDirection = 'column';
-            navActionsWrapper.style.marginTop = '2rem';
+          if (!navLinks.contains(actionsDiv)) {
+            actionsDiv.classList.add('nav-actions-mobile');
+            navLinks.appendChild(actionsDiv);
           }
         } else {
-          if (navActionsWrapper.parentNode === navLinks) {
-            const navbar = document.getElementById('nav');
-            if(navbar) {
-              navbar.appendChild(navActionsWrapper);
-              navActionsWrapper.style.flexDirection = 'row';
-              navActionsWrapper.style.marginTop = '0';
-            }
+          if (navLinks.contains(actionsDiv)) {
+            actionsDiv.classList.remove('nav-actions-mobile');
+            nav.appendChild(actionsDiv);
           }
+          navLinks.classList.remove('open');
+          newHam.classList.remove('active');
         }
       };
-      handleNavResize();
-      window.removeEventListener('resize', handleNavResize);
-      window.addEventListener('resize', handleNavResize);
+      mobileActions();
+      window.addEventListener('resize', mobileActions);
     }
   }
 }
