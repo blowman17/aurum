@@ -1296,6 +1296,10 @@ footer {
 
 /* ── MOBILE ──────────────────────────────────── */
 @media(max-width:900px) {
+  #cursor, #cursor-ring {
+    display: none !important;
+  }
+
   nav {
     padding: 1.2rem 1.5rem;
     background: rgb(10, 9, 12);
