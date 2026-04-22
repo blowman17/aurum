@@ -162,9 +162,8 @@ async function initAuth() {
         const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            // Redirect back to auth page or wherever the user intended to go.
-            // When Supabase redirects back, it will parse the token automatically.
-            redirectTo: window.location.origin + '/auth.html'
+            // Dynamically redirect back to the current page (auth.html)
+            redirectTo: window.location.href.split('?')[0]
           }
         });
 
