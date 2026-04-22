@@ -51,7 +51,18 @@ window.trackOrder = async function() {
   document.getElementById('track-error').style.display = 'none';
 
   try {
-    const res = await fetch('/api/orders/track/' + encodeURIComponent(ref));
+    let token = '';
+    if (typeof window.supabaseClient !== 'undefined') {
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      token = session ? session.access_token : '';
+    }
+
+    const res = await fetch('/api/orders/track/' + encodeURIComponent(ref), {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
       throw new Error(json.error || 'Order not found');

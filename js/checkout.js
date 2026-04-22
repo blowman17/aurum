@@ -75,9 +75,16 @@ async function initCheckout() {
       actualBtn.textContent = 'PROCESSING...';
 
       try {
+        // Retrieve current session token to authenticate payment request
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const token = session ? session.access_token : '';
+
         const res = await fetch('/api/payments/initialize', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({
             email,
             amount: CartManager.getTotal(),

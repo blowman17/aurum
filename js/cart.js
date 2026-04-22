@@ -7,14 +7,36 @@ const CartManager = {
     return this._userId ? 'aurum_cart_' + this._userId : 'aurum_cart_guest';
   },
 
-  /* Sync cart key to current auth user */
+  /* Sync cart key to current auth user and merge guest data securely */
   async syncUser() {
+    const oldKey = this.KEY;
     try {
       if (typeof window.supabaseClient !== 'undefined') {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         this._userId = session ? session.user.id : null;
       }
     } catch(e) { this._userId = null; }
+
+    const newKey = this.KEY;
+    // Just logged in: merge guest cart into user cart to prevent leakage
+    if (oldKey === 'aurum_cart_guest' && newKey !== 'aurum_cart_guest') {
+      const guestCart = JSON.parse(localStorage.getItem('aurum_cart_guest')) || [];
+      if (guestCart.length > 0) {
+        const userCart = JSON.parse(localStorage.getItem(newKey)) || [];
+        guestCart.forEach(gItem => {
+          const existing = userCart.find(uItem => uItem.key === gItem.key);
+          if (existing) existing.qty += gItem.qty;
+          else userCart.push(gItem);
+        });
+        localStorage.setItem(newKey, JSON.stringify(userCart));
+        localStorage.removeItem('aurum_cart_guest');
+      }
+    }
+    // Just logged out: optionally clear guest cart if you want strict isolation
+    if (oldKey !== 'aurum_cart_guest' && newKey === 'aurum_cart_guest') {
+      localStorage.removeItem('aurum_cart_guest'); 
+    }
+
     this.updateBadge();
   },
 

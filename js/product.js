@@ -32,49 +32,43 @@ async function initProduct() {
         let selectedSize = p.sizes && p.sizes.length ? p.sizes[0] : 'OS';
 
         detailContainer.innerHTML = `
-            <div class="product-layout">
-                <div class="product-visual reveal">
-                    <div class="product-img-v" style="background:${p.gradient};">
-                        ${p.image ? `<img src="${p.image}" alt="${p.name}" />` : `<span style="font-size:5rem;opacity:0.2;">${p.name.charAt(0)}</span>`}
+            ${p.image
+                ? `<div class="product-detail-img" style="background:${p.gradient || 'transparent'};"><img src="${p.image}" alt="${p.name}" /></div>`
+                : `<div class="product-detail-img img-placeholder" style="background:${p.gradient || 'transparent'};">${p.name.split(' ')[0].toUpperCase()}</div>`
+            }
+            <div class="product-detail-info">
+                <p class="product-detail-collection">${p.collection} · ${p.season || 'FW26'}</p>
+                <h1 class="product-detail-name">${p.name}</h1>
+                <p class="product-detail-price">${formatPrice(p.price)}</p>
+                <p class="product-detail-desc">${p.description || 'A masterpiece of contemporary haute couture, handcrafted with the finest materials and an unwavering eye for detail.'}</p>
+                
+                <div class="size-selector">
+                    <h4>Size</h4>
+                    <div class="size-options">
+                        ${(p.sizes || ['S', 'M', 'L']).map(s => `
+                            <button class="size-btn ${s === selectedSize ? 'selected' : ''}" data-size="${s}">${s}</button>
+                        `).join('')}
                     </div>
                 </div>
-                <div class="product-info">
-                    <p class="product-cat reveal" style="transition-delay:0.1s;">${p.collection}</p>
-                    <h1 class="product-name reveal" style="transition-delay:0.2s;">${p.name}</h1>
-                    <p class="product-price reveal" style="transition-delay:0.3s;">${formatPrice(p.price)}</p>
-                    
-                    <div class="product-desc reveal" style="transition-delay:0.4s;">
-                        <p>${p.description || 'A masterpiece of contemporary haute couture, handcrafted with the finest materials and an unwavering eye for detail.'}</p>
-                    </div>
 
-                    <div class="product-options reveal" style="transition-delay:0.5s;">
-                        <p class="opt-label">SELECT SIZE</p>
-                        <div class="size-selector">
-                            ${(p.sizes || ['S', 'M', 'L']).map(s => `
-                                <button class="size-btn ${s === selectedSize ? 'active' : ''}" data-size="${s}">${s}</button>
-                            `).join('')}
-                        </div>
+                <div class="product-actions">
+                    <div class="qty-control">
+                        <button class="qty-btn" id="qty-minus">−</button>
+                        <div class="qty-display" id="qty-val">1</div>
+                        <button class="qty-btn" id="qty-plus">+</button>
                     </div>
+                    <div style="display:flex;gap:1rem;margin-top:0;flex:1;">
+                        <button class="btn-add-cart" id="add-to-cart" style="flex:1;">ADD TO CART</button>
+                        <button id="add-to-wishlist" class="btn-add-cart" style="flex:none;width:50px;padding:0;background:transparent;border:1px solid var(--border);color:var(--gold-lt);font-size:1.2rem;">
+                            ${window.WishlistManager && window.WishlistManager.isInWishlist(p.id) ? '♥' : '♡'}
+                        </button>
+                    </div>
+                </div>
 
-                    <div class="product-actions reveal" style="transition-delay:0.6s;">
-                        <div class="qty-selector">
-                            <button class="qty-btn" id="qty-minus">−</button>
-                            <span id="qty-val">1</span>
-                            <button class="qty-btn" id="qty-plus">+</button>
-                        </div>
-                        <div style="display:flex;gap:1rem;margin-top:1.5rem;width:100%;">
-                            <button class="btn-add-cart" id="add-to-cart" style="flex:1;">ADD TO CART</button>
-                            <button id="add-to-wishlist" class="product-detail-wish ${window.WishlistManager && window.WishlistManager.isInWishlist(p.id) ? 'active' : ''}">
-                                ${window.WishlistManager && window.WishlistManager.isInWishlist(p.id) ? '♥' : '♡'}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="product-meta reveal" style="transition-delay:0.7s;">
-                        <p><span>Composition:</span> 100% Sustainable Organic Silk</p>
-                        <p><span>Origin:</span> Handcrafted in Accra, Ghana</p>
-                        <p><span>Care:</span> Professional Dry Clean Only</p>
-                    </div>
+                <div class="product-meta" style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);font-size:0.75rem;color:rgba(245,240,232,0.5);">
+                    <p style="margin-bottom:0.5rem;"><strong style="color:var(--gold-lt);font-weight:400;margin-right:0.5rem;">Composition:</strong> 100% Sustainable Organic Silk</p>
+                    <p style="margin-bottom:0.5rem;"><strong style="color:var(--gold-lt);font-weight:400;margin-right:0.5rem;">Origin:</strong> Handcrafted in Accra, Ghana</p>
+                    <p><strong style="color:var(--gold-lt);font-weight:400;margin-right:0.5rem;">Care:</strong> Professional Dry Clean Only</p>
                 </div>
             </div>
         `;
@@ -83,8 +77,8 @@ async function initProduct() {
         const sizeBtns = detailContainer.querySelectorAll('.size-btn');
         sizeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                sizeBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                sizeBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
                 selectedSize = btn.dataset.size;
             });
         });

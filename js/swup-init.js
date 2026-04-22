@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if ((document.getElementById('hero') || document.getElementById('philosophy')) && typeof initHomepage === 'function') {
             initHomepage();
         }
+        if (document.querySelector('.settings-container') && typeof initSettings === 'function') {
+            initSettings();
+        }
         if (document.getElementById('track-input') && typeof trackOrder === 'function') {
             // trackOrder is globally available but needs bindings
             const trackBtn = document.getElementById('track-btn');

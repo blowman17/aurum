@@ -31,6 +31,16 @@ const upload = multer({
   }
 });
 
+const requireAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  const token = authHeader.split(' ')[1];
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  req.user = user;
+  next();
+};
+
 /* ── Upload Endpoint ─────────────────────── */
 router.post('/upload', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No image file provided' });
@@ -150,11 +160,11 @@ router.delete('/products/:id', async (req, res) => {
 });
 
 /* ── POST /api/orders ────────────────────── */
-router.post('/orders', async (req, res) => {
+router.post('/orders', requireAuth, async (req, res) => {
   try {
     const order = {
       items: req.body.items || [],
-      customer_email: req.body.customer?.email || '',
+      customer_email: req.user.email,
       customer_name: req.body.customer?.name || '',
       total: req.body.total || 0,
       status: 'pending',
@@ -183,7 +193,7 @@ router.post('/orders', async (req, res) => {
 });
 
 /* ── GET /api/orders/:id ─────────────────── */
-router.get('/orders/:id', async (req, res) => {
+router.get('/orders/:id', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -192,6 +202,7 @@ router.get('/orders/:id', async (req, res) => {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Order not found' });
+    if (data.customer_email !== req.user.email) return res.status(403).json({ error: 'Order belongs to another account' });
 
     res.json({
       id: data.id,
@@ -209,12 +220,13 @@ router.get('/orders/:id', async (req, res) => {
   }
 });
 
-/* ── GET /api/orders — List all orders (admin) ── */
-router.get('/orders', async (req, res) => {
+/* ── GET /api/orders — List all orders (admin/customer) ── */
+router.get('/orders', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
       .select('*')
+      .eq('customer_email', req.user.email)
       .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
@@ -225,25 +237,9 @@ router.get('/orders', async (req, res) => {
 });
 
 /* ── PATCH /api/orders/:id/status — Update order status (admin) ── */
-router.patch('/orders/:id/status', async (req, res) => {
+router.patch('/orders/:id/status', requireAuth, async (req, res) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status. Must be one of: ' + validStatuses.join(', ') });
-    }
-
-    const { data, error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', req.params.id)
-      .select()
-      .single();
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Order not found' });
-
-
-    res.json(data);
+    return res.status(403).json({ error: 'Forbidden: Customers cannot update order status directly' });
   } catch (err) {
     if (err.code === 'PGRST116') return res.status(404).json({ error: 'Order not found' });
     console.error('Order status update error:', err.message);
@@ -252,7 +248,7 @@ router.patch('/orders/:id/status', async (req, res) => {
 });
 
 /* ── GET /api/orders/track/:ref — Customer order tracking ── */
-router.get('/orders/track/:ref', async (req, res) => {
+router.get('/orders/track/:ref', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -261,6 +257,7 @@ router.get('/orders/track/:ref', async (req, res) => {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Order not found' });
+    if (data.customer_email !== req.user.email) return res.status(403).json({ error: 'Order belongs to another account' });
 
     res.json({
       id: data.id,

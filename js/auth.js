@@ -143,6 +143,39 @@ async function initAuth() {
       }
     });
   }
+
+  // Google OAuth logic
+  const googleBtn = document.getElementById('google-auth-btn');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if(msgEl) msgEl.style.display = 'none';
+      const originalText = googleBtn.innerHTML;
+      googleBtn.innerHTML = 'Connecting to Google...';
+      googleBtn.disabled = true;
+
+      try {
+        if (typeof window.supabaseClient === 'undefined') {
+          throw new Error('Authentication service is unavailable. Please hard-refresh your browser.');
+        }
+
+        const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            // Redirect back to auth page or wherever the user intended to go.
+            // When Supabase redirects back, it will parse the token automatically.
+            redirectTo: window.location.origin + '/auth.html'
+          }
+        });
+
+        if (error) throw error;
+      } catch (err) {
+        showMessage(err.message || 'Google Authentication failed. Please try again.');
+        googleBtn.innerHTML = originalText;
+        googleBtn.disabled = false;
+      }
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

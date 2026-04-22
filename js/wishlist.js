@@ -9,14 +9,35 @@ if (!window.WishlistManager) {
       return this._userId ? 'aurum_wishlist_' + this._userId : 'aurum_wishlist_guest';
     },
 
-    /* Sync wishlist key to current auth user */
+    /* Sync wishlist key to current auth user and merge guest data securely */
     async syncUser() {
+      const oldKey = this.KEY;
       try {
         if (typeof window.supabaseClient !== 'undefined') {
           const { data: { session } } = await window.supabaseClient.auth.getSession();
           this._userId = session ? session.user.id : null;
         }
       } catch(e) { this._userId = null; }
+
+      const newKey = this.KEY;
+      // Just logged in: merge guest wishlist into user wishlist to prevent leakage
+      if (oldKey === 'aurum_wishlist_guest' && newKey !== 'aurum_wishlist_guest') {
+        const guestWishlist = JSON.parse(localStorage.getItem('aurum_wishlist_guest')) || [];
+        if (guestWishlist.length > 0) {
+          const userWishlist = JSON.parse(localStorage.getItem(newKey)) || [];
+          guestWishlist.forEach(gItem => {
+            const existing = userWishlist.find(uItem => String(uItem.id) === String(gItem.id));
+            if (!existing) userWishlist.push(gItem);
+          });
+          localStorage.setItem(newKey, JSON.stringify(userWishlist));
+          localStorage.removeItem('aurum_wishlist_guest');
+        }
+      }
+      // Just logged out: clear guest wishlist for security
+      if (oldKey !== 'aurum_wishlist_guest' && newKey === 'aurum_wishlist_guest') {
+        localStorage.removeItem('aurum_wishlist_guest');
+      }
+
       this.initialized = false;
       this.init();
     },

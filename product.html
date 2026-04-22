@@ -48,71 +48,7 @@
     <div class="foot-social"><a href="#" class="social-link">IG</a><a href="#" class="social-link">FB</a><a href="#" class="social-link">TW</a><a href="#" class="social-link">YT</a></div>
   </div>
 </footer>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const container = document.getElementById('product-detail');
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  if (!id) { container.innerHTML = '<div class="cart-empty"><p>Product not found</p><a href="shop.html" class="btn-primary" style="display:inline-block;margin-top:1rem;">Browse Shop</a></div>'; return; }
 
-  try {
-    const res = await fetch('/api/products/' + id);
-    if (!res.ok) throw new Error();
-    const p = await res.json();
-    document.title = p.name + ' — AURUM';
-
-    let selectedSize = p.sizes[0];
-    let qty = 1;
-
-    container.innerHTML = `
-      ${p.image
-        ? `<div class="product-detail-img" style="background:${p.gradient};"><img src="${p.image}" alt="${p.name}" /></div>`
-        : `<div class="product-detail-img img-placeholder" style="background:${p.gradient};">${p.name.split(' ')[0].toUpperCase()}</div>`
-      }
-      <div class="product-detail-info">
-        <p class="product-detail-collection">${p.collection} · ${p.season}</p>
-        <h1 class="product-detail-name">${p.name}</h1>
-        <p class="product-detail-price">${formatPrice(p.price)}</p>
-        <p class="product-detail-desc">${p.description}</p>
-        <div class="size-selector">
-          <h4>Size</h4>
-          <div class="size-options">
-            ${p.sizes.map((s,i) => `<button class="size-btn ${i===0?'selected':''}" data-size="${s}">${s}</button>`).join('')}
-          </div>
-        </div>
-        <div class="product-actions">
-          <div class="qty-control">
-            <button class="qty-btn" id="qty-minus">−</button>
-            <div class="qty-display" id="qty-val">1</div>
-            <button class="qty-btn" id="qty-plus">+</button>
-          </div>
-          <button class="btn-add-cart" id="add-to-cart">Add to Cart</button>
-        </div>
-      </div>
-    `;
-
-    // Size selection
-    container.querySelectorAll('.size-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedSize = btn.dataset.size;
-      });
-    });
-
-    // Qty controls
-    document.getElementById('qty-minus').addEventListener('click', () => { if (qty > 1) { qty--; document.getElementById('qty-val').textContent = qty; }});
-    document.getElementById('qty-plus').addEventListener('click', () => { qty++; document.getElementById('qty-val').textContent = qty; });
-
-    // Add to cart
-    document.getElementById('add-to-cart').addEventListener('click', () => {
-      CartManager.addItem(p, qty, selectedSize);
-    });
-  } catch {
-    container.innerHTML = '<div class="cart-empty"><p>Product not found</p><a href="shop.html" class="btn-primary" style="display:inline-block;margin-top:1rem;">Browse Shop</a></div>';
-  }
-});
-</script>
 <script src="https://unpkg.com/swup@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
