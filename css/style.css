@@ -1437,7 +1437,27 @@ footer {
   }
 
   .nav-links {
-    display: none !important;
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgb(10, 9, 12);
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    z-index: 9998;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
   }
 
   .nav-hamburger {
@@ -1461,23 +1481,9 @@ footer {
 
   /* ── Fullscreen mobile menu overlay ─────── */
   .nav-links.open {
-    display: flex !important;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
-    background: rgb(10, 9, 12);
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    z-index: 9998;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    overflow-y: auto;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: scale(1) !important;
   }
 
   .nav-links.open li {

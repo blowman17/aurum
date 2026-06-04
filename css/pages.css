@@ -1241,11 +1241,15 @@
   color: rgba(245, 240, 232, .4);
   font-size: 1.2rem;
   cursor: pointer;
-  transition: color .3s;
+  transition: color 200ms var(--ease-out), transform 160ms var(--ease-out);
 }
 
 .admin-modal-close:hover {
   color: var(--gold);
+}
+
+.admin-modal-close:active {
+  transform: scale(0.9);
 }
 
 /* admin form */
@@ -2504,6 +2508,125 @@
     grid-template-columns: 1fr;
     gap: 2rem;
     padding: 4rem 1.5rem;
+  }
+
+  /* Admin mobile overrides (Tables to Cards) */
+  .admin-toolbar {
+    padding: 0 1.5rem 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .admin-count {
+    font-size: 0.7rem;
+  }
+
+  .admin-btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-filter-row {
+    width: 100%;
+  }
+
+  .admin-select {
+    width: 100%;
+  }
+
+  .admin-table-wrap {
+    padding: 0 1.5rem 3rem;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table, 
+  .admin-table tbody, 
+  .admin-table tr, 
+  .admin-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table tbody tr {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    position: relative;
+    transition: transform 200ms var(--ease-out), border-color 200ms var(--ease-out);
+  }
+
+  .admin-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(201, 168, 76, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .admin-table td {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: none;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    justify-content: flex-end;
+  }
+
+  /* Label generator using ::before */
+  #products-tbody td:nth-child(1) {
+    justify-content: flex-start;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  #products-tbody td:nth-child(1)::before {
+    display: none;
+  }
+
+  #products-tbody td:nth-child(2)::before { content: 'Collection'; }
+  #products-tbody td:nth-child(3)::before { content: 'Season'; }
+  #products-tbody td:nth-child(4)::before { content: 'Price'; }
+  #products-tbody td:nth-child(5)::before { content: 'Tag'; }
+  #products-tbody td:nth-child(6)::before { content: 'Actions'; }
+
+  #orders-tbody td:nth-child(1) {
+    justify-content: space-between;
+    font-weight: 500;
+    color: var(--gold-lt);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  #orders-tbody td:nth-child(1)::before { content: 'Reference'; }
+  #orders-tbody td:nth-child(2)::before { content: 'Customer'; }
+  #orders-tbody td:nth-child(3)::before { content: 'Items'; }
+  #orders-tbody td:nth-child(4)::before { content: 'Total'; }
+  #orders-tbody td:nth-child(5)::before { content: 'Status'; }
+  #orders-tbody td:nth-child(6)::before { content: 'Date'; }
+  #orders-tbody td:nth-child(7)::before { content: 'Actions'; }
+
+  .admin-table td::before {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 400;
+    text-align: left;
   }
 }
 
