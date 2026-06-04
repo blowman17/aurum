@@ -96,6 +96,8 @@ function initHomepage() {
   const heroSection = document.getElementById('hero');
   if (heroSection) {
     heroSection.addEventListener('mousemove', e => {
+      if (window.innerWidth <= 900) return;
+
       const cx = e.clientX / window.innerWidth - .5;
       const cy = e.clientY / window.innerHeight - .5;
       

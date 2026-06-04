@@ -2383,17 +2383,31 @@
     width: 100%;
   }
 
+  #filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
   .filter-btn {
     display: inline-block;
     width: auto;
-    padding: 0.4rem 0.8rem;
+    padding: 0.6rem 1.2rem;
     border: 1px solid var(--border);
+    border-radius: 2rem;
     font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    background: transparent;
+    transition: all 160ms var(--ease-out);
   }
 
   .filter-btn.active {
     border-color: var(--gold);
     background: rgba(201, 168, 76, 0.1);
+    color: var(--gold-lt);
   }
 
   .filter-btn.active::before {
@@ -2627,6 +2641,18 @@
     color: var(--gold);
     font-weight: 400;
     text-align: left;
+  }
+
+  .admin-table td.admin-empty {
+    display: block !important;
+    text-align: center !important;
+    justify-content: center !important;
+    border: none !important;
+    padding: 3rem 1rem !important;
+  }
+
+  .admin-table td.admin-empty::before {
+    display: none !important;
   }
 }
 

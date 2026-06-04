@@ -109,7 +109,7 @@ window.formatPrice = formatPrice;
 
 /* ── WHATSAPP LINK GENERATOR ─────────────────── */
 function getWhatsAppLink(product, qty = 1, size = 'OS') {
-  const phone = '233300000000'; // Maison Aurum WhatsApp
+  const phone = '233200949099'; // Maison Aurum WhatsApp
   const url = window.location.href;
   const text = `Hi Maison Aurum! I'm interested in the ${product.name} (${size}) x ${qty}.\n\nView piece: ${url}`;
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
