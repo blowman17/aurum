@@ -52,16 +52,26 @@ async function initProduct() {
                 </div>
 
                 <div class="product-actions">
-                    <div class="qty-control">
-                        <button class="qty-btn" id="qty-minus">−</button>
-                        <div class="qty-display" id="qty-val">1</div>
-                        <button class="qty-btn" id="qty-plus">+</button>
-                    </div>
-                    <div style="display:flex;gap:1rem;margin-top:0;flex:1;">
-                        <button class="btn-add-cart" id="add-to-cart" style="flex:1;">ADD TO CART</button>
-                        <button id="add-to-wishlist" class="btn-add-cart" style="flex:none;width:50px;padding:0;background:transparent;border:1px solid var(--border);color:var(--gold-lt);font-size:1.2rem;">
+                    <div class="product-actions-top">
+                        <div class="qty-control">
+                            <button class="qty-btn" id="qty-minus">−</button>
+                            <div class="qty-display" id="qty-val">1</div>
+                            <button class="qty-btn" id="qty-plus">+</button>
+                        </div>
+                        <button id="add-to-wishlist" class="product-detail-wish">
                             ${window.WishlistManager && window.WishlistManager.isInWishlist(p.id) ? '♥' : '♡'}
                         </button>
+                    </div>
+                    <button class="btn-add-cart" id="add-to-cart">ADD TO CART</button>
+                    <a href="#" class="btn-whatsapp" id="order-whatsapp">ORDER ON WHATSAPP</a>
+                </div>
+
+                <div class="product-share">
+                    <span class="share-label">Share Piece:</span>
+                    <div class="share-icons">
+                        <a href="#" class="share-icon" id="share-wa" title="WhatsApp Status">WA</a>
+                        <a href="#" class="share-icon" id="share-ig" title="Instagram Stories">IG</a>
+                        <a href="#" class="share-icon" id="share-copy" title="Copy Link">🔗</a>
                     </div>
                 </div>
 
@@ -111,10 +121,40 @@ async function initProduct() {
                 if (Manager) {
                     const isWished = Manager.toggleItem(p);
                     wishBtn.textContent = isWished ? '♥' : '♡';
-                    wishBtn.className = isWished ? 'active' : '';
+                    wishBtn.classList.toggle('active', isWished);
                 }
             });
         }
+
+        // WhatsApp Order Listener
+        const waBtn = document.getElementById('order-whatsapp');
+        if (waBtn) {
+            waBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.getWhatsAppLink) {
+                   window.open(window.getWhatsAppLink(p, qty, selectedSize), '_blank');
+                }
+            });
+        }
+
+        // Share Listeners
+        document.getElementById('share-wa')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            const text = `Check out this ${p.name} at Maison Aurum: ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        });
+
+        document.getElementById('share-ig')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showToast('Ready for IG Stories. Save image and share!');
+            // In a real app, this might trigger a specific mobile share intent
+        });
+
+        document.getElementById('share-copy')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigator.clipboard.writeText(window.location.href);
+            showToast('Link copied to clipboard');
+        });
 
         // Trigger reveal animations
         setTimeout(() => {

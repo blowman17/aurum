@@ -14,7 +14,7 @@ window.initSettings = async () => {
     if (typeof showToast === 'function') showToast('Session error: ' + sessionError.message, 5000);
     return;
   }
-  
+
   if (!session) {
     window.location.href = 'auth.html';
     return;
@@ -39,7 +39,7 @@ window.initSettings = async () => {
   nameInput.value = userMetadata.display_name || '';
   phoneInput.value = userMetadata.phone_number || '';
   emailInput.value = user.email;
-  
+
   const created = new Date(user.created_at);
   registeredDate.textContent = created.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -52,7 +52,7 @@ window.initSettings = async () => {
     }
     return (email || '??').substring(0, 2).toUpperCase();
   };
-  
+
   const updateAvatar = () => {
     if (avatarCircle) {
       avatarCircle.textContent = getInitials(nameInput.value, user.email);
@@ -148,7 +148,7 @@ window.initSettings = async () => {
       deleteModal.classList.add('show');
     });
   }
-  
+
   if (btnCancelDelete && deleteModal) {
     btnCancelDelete.addEventListener('click', () => {
       deleteModal.classList.remove('show');

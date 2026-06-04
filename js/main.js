@@ -2,26 +2,26 @@
 
 /* ── CURSOR ─────────────────────────────────── */
 const cursor = document.getElementById('cursor');
-const ring   = document.getElementById('cursor-ring');
-let mx=0, my=0, rx=0, ry=0;
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
 
-if(cursor && ring) {
+if (cursor && ring) {
   document.addEventListener('mousemove', e => {
-    mx=e.clientX; my=e.clientY;
-    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
   });
-  (function animRing(){
-    rx+=(mx-rx)*.14; ry+=(my-ry)*.14;
-    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  (function animRing() {
+    rx += (mx - rx) * .14; ry += (my - ry) * .14;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
     requestAnimationFrame(animRing);
   })();
 }
 
 function bindHovers() {
-  document.querySelectorAll('a,button,.col-card,.feat-card,.feat-add,.nav-cta,.product-card,.filter-btn,.size-btn,.qty-btn,.btn-add-cart,.btn-pay,.product-card-add,.cart-item-remove').forEach(el=>{
+  document.querySelectorAll('a,button,.col-card,.feat-card,.feat-add,.nav-cta,.product-card,.filter-btn,.size-btn,.qty-btn,.btn-add-cart,.btn-pay,.product-card-add,.cart-item-remove').forEach(el => {
     // Use removeEventListener trick if needed, but Swup replaces elements anyway
-    el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
-    el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
   });
 }
 window.bindHovers = bindHovers;
@@ -33,12 +33,12 @@ function initNav() {
   const navLinks = document.querySelector('.nav-links');
   const actionsDiv = nav ? nav.querySelector(':scope > div[style]') : null;
 
-  if(nav){
-    window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60), {passive:true});
-    nav.classList.toggle('scrolled',window.scrollY>60);
+  if (nav) {
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+    nav.classList.toggle('scrolled', window.scrollY > 60);
   }
 
-  if(hamburger && navLinks){
+  if (hamburger && navLinks) {
     const newHam = hamburger.cloneNode(true);
     hamburger.parentNode.replaceChild(newHam, hamburger);
 
@@ -79,14 +79,14 @@ function initNav() {
 }
 
 /* ── REVEAL OBSERVER ────────────────────────── */
-const revealObs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){ e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
   });
-},{threshold:.10}); // Lowered threshold slightly for better reliability
+}, { threshold: .10 }); // Lowered threshold slightly for better reliability
 
 function refreshReveal() {
-  document.querySelectorAll('.reveal').forEach(el=> {
+  document.querySelectorAll('.reveal').forEach(el => {
     el.classList.remove('visible'); // reset before re-observing
     revealObs.observe(el);
   });
@@ -94,18 +94,27 @@ function refreshReveal() {
 window.refreshReveal = refreshReveal;
 
 /* ── TOAST ───────────────────────────────────── */
-function showToast(msg, dur=2500){
-  let t=document.querySelector('.toast');
-  if(!t){ t=document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
-  t.textContent=msg; t.classList.add('show');
+function showToast(msg, dur = 2500) {
+  let t = document.querySelector('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(t._tm);
-  t._tm=setTimeout(()=>t.classList.remove('show'),dur);
+  t._tm = setTimeout(() => t.classList.remove('show'), dur);
 }
 window.showToast = showToast;
 
 /* ── FORMAT PRICE ────────────────────────────── */
-function formatPrice(a){ return 'GH₵ '+Number(a).toLocaleString('en-GH', { minimumFractionDigits: 2 }); }
+function formatPrice(a) { return 'GH₵ ' + Number(a).toLocaleString('en-GH', { minimumFractionDigits: 2 }); }
 window.formatPrice = formatPrice;
+
+/* ── WHATSAPP LINK GENERATOR ─────────────────── */
+function getWhatsAppLink(product, qty = 1, size = 'OS') {
+  const phone = '233300000000'; // Maison Aurum WhatsApp
+  const url = window.location.href;
+  const text = `Hi Maison Aurum! I'm interested in the ${product.name} (${size}) x ${qty}.\n\nView piece: ${url}`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+window.getWhatsAppLink = getWhatsAppLink;
 
 /* ── GLOBAL AUTH NAV ─────────────────────────── */
 async function updateAuth() {
@@ -127,7 +136,7 @@ async function updateAuth() {
 
             cta.innerHTML = 'Account <span style="font-size:0.6rem;margin-left:5px;">▼</span>';
             cta.href = '#';
-            
+
             const dropdown = document.createElement('div');
             dropdown.className = 'auth-dropdown';
             dropdown.innerHTML = `
@@ -152,7 +161,7 @@ async function updateAuth() {
             });
 
             const logoutBtn = dropdown.querySelector('#auth-logout-btn');
-            if(logoutBtn) {
+            if (logoutBtn) {
               logoutBtn.onclick = (e) => {
                 e.preventDefault();
                 dropdown.classList.remove('show');
@@ -175,7 +184,7 @@ async function updateAuth() {
         }
       }
     });
-  } catch(e) {}
+  } catch (e) { }
 }
 window.updateAuth = updateAuth;
 

@@ -7,7 +7,7 @@
 <meta name="description" content="Your AURUM shopping cart." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/pages.css" />
 </head>
@@ -21,7 +21,6 @@
   <ul class="nav-links">
     <li><a href="shop.html">Shop</a></li>
     <li><a href="about.html">Atelier</a></li>
-
     <li><a href="index.html#testimonials">Stories</a></li>
   </ul>
   <div style="display:flex;gap:1.8rem;align-items:center;">
@@ -76,8 +75,18 @@ function renderCart() {
       <div class="cart-summary-row"><span>Shipping</span><span>Calculated at checkout</span></div>
       <div class="cart-summary-row total"><span>Total</span><span>${formatPrice(total)}</span></div>
       <a href="checkout.html" class="btn-pay" style="display:block;text-align:center;text-decoration:none;margin-top:1.5rem;">Proceed to Checkout</a>
+      <a href="#" class="btn-whatsapp" id="cart-order-whatsapp" style="margin-top:0.8rem;">ORDER ON WHATSAPP</a>
     </div>
   `;
+  const waBtn = document.getElementById('cart-order-whatsapp');
+  if (waBtn) {
+    waBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const items = cart.map(i => `• ${i.name} (Size ${i.size}) x ${i.qty} — ${formatPrice(i.price * i.qty)}`).join('\n');
+      const text = `Hi Maison Aurum! I'd like to order:\n\n${items}\n\nTotal: ${formatPrice(CartManager.getTotal())}`;
+      window.open(`https://wa.me/233300000000?text=${encodeURIComponent(text)}`, '_blank');
+    });
+  }
 }
 function changeQty(key, delta) {
   const cart = CartManager.getCart();
@@ -103,7 +112,3 @@ document.addEventListener('DOMContentLoaded', renderCart);
 <script src="js/swup-init.js"></script>
 </body>
 </html>
-
-
-
-
