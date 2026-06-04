@@ -90,18 +90,39 @@ function initHomepage() {
     });
   }
 
-  /* ── HERO TEXT FLOAT ──────────────────────── */
+  /* ── HERO TEXT FLOAT & 3D FRAME PARALLAX ──── */
   const heroContent = document.querySelector('.hero-content');
+  const heroFrame = document.querySelector('.hero-frame-container');
   const heroSection = document.getElementById('hero');
-  if (heroContent && heroSection) {
+  if (heroSection) {
     heroSection.addEventListener('mousemove', e => {
       const cx = e.clientX / window.innerWidth - .5;
       const cy = e.clientY / window.innerHeight - .5;
-      heroContent.style.transform = 'translate('+cx*12+'px,'+cy*8+'px)';
+      
+      // Floating text effect
+      if (heroContent) {
+        heroContent.style.transform = 'translate('+cx*15+'px,'+cy*10+'px)';
+      }
+      
+      // Interactive 3D tilt effect on the image frame
+      if (heroFrame) {
+        const r = heroSection.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width - .5) * 15;
+        const y = ((e.clientY - r.top) / r.height - .5) * -15;
+        heroFrame.style.transform = 'perspective(1000px) rotateY('+x+'deg) rotateX('+y+'deg)';
+        heroFrame.style.transition = 'none';
+      }
     });
+
     heroSection.addEventListener('mouseleave', () => {
-      heroContent.style.transform = '';
-      heroContent.style.transition = 'transform .8s ease';
+      if (heroContent) {
+        heroContent.style.transform = '';
+        heroContent.style.transition = 'transform .8s ease';
+      }
+      if (heroFrame) {
+        heroFrame.style.transform = '';
+        heroFrame.style.transition = 'transform .8s ease';
+      }
     });
   }
 
