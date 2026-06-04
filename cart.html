@@ -84,7 +84,7 @@ function renderCart() {
       e.preventDefault();
       const items = cart.map(i => `• ${i.name} (Size ${i.size}) x ${i.qty} — ${formatPrice(i.price * i.qty)}`).join('\n');
       const text = `Hi Maison Aurum! I'd like to order:\n\n${items}\n\nTotal: ${formatPrice(CartManager.getTotal())}`;
-      window.open(`https://wa.me/233200949099?text=${encodeURIComponent(text)}`, '_blank');
+      window.open(`https://wa.me/233533286213?text=${encodeURIComponent(text)}`, '_blank');
     });
   }
 }
